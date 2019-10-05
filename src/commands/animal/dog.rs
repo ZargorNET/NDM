@@ -109,12 +109,15 @@ fn dog_breed_command(args: CommandArguments) -> CommandResult {
     let breeds: DogBreeds = unwrap_cmd_err!(&DOG_BREEDS_COMMAND, serde_json::from_str(&breeds_res), "could not parse dog breed's body to json");
 
     let mut s = "".to_owned();
+
+
     for (k, _) in breeds.message.iter() {
         s.push_str(&format!("{}\n", k));
     }
+
     let _ = args.m.channel_id.send_message(args.ctx, |mb| {
         mb.embed(|mut eb| {
-            eb.field("All available dog breeds", s, false);
+            eb.field("All available dog breeds", s, true);
             commands::util::add_footer(&mut eb, &args);
             commands::util::add_timestamp(&mut eb);
             eb

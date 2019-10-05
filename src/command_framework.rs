@@ -1,16 +1,17 @@
 use std::{error, fmt};
-use std::any::Any;
-use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::sync::Arc;
 
 use serenity::model::prelude::Message;
 use serenity::prelude::{Context, RwLock};
 
+use crate::safe::Safe;
+use crate::scheduler::Scheduler;
+
 pub struct CommandManager {
-    commands: Vec<&'static Command>,
-    safe: HashMap<String, Box<dyn Any + Send + Sync>>,
+    commands: Vec<&'static Command>
 }
+
 
 /// This struct will be passed for every command
 ///
@@ -24,6 +25,8 @@ pub struct CommandArguments<'a> {
     pub ctx: &'a Context,
     pub m: &'a Message,
     pub handler: Arc<RwLock<CommandManager>>,
+    pub scheduler: Arc<RwLock<Scheduler>>,
+    pub safe: Arc<RwLock<Safe>>,
 }
 
 #[derive(Clone)]
@@ -54,7 +57,6 @@ impl CommandManager {
     pub fn new() -> CommandManager {
         CommandManager {
             commands: vec![],
-            safe: HashMap::new(),
         }
     }
 
@@ -73,50 +75,16 @@ impl CommandManager {
     pub fn get_all_commands(&self) -> &Vec<&'static Command> {
         &self.commands
     }
-
-    pub fn store<T>(&mut self, s: &str, t: T) where T: Any + Send + Sync {
-        self.safe.insert(s.to_owned(), Box::new(t));
-    }
-
-    pub fn get<T>(&self, s: &str) -> Option<&Box<T>> where T: Any + Send + Sync {
-        let val = self.safe.get(s);
-        match val {
-            None => None,
-            Some(o) => if o.is::<T>() {
-                unsafe {
-                    Some(std::mem::transmute::<&Box<dyn Any + Send + Sync>, &Box<T>>(o))
-                }
-            } else {
-                panic!("Error while retrieving storage of {}. Invalid type", s)
-            }
-        }
-    }
-
-    pub fn get_mut<T>(&mut self, s: &str) -> Option<&mut Box<T>> where T: Any + Send + Sync {
-        let val = self.safe.get_mut(s);
-        match val {
-            None => None,
-            Some(o) => if o.is::<T>() {
-                unsafe {
-                    Some(std::mem::transmute::<&mut Box<dyn Any + Send + Sync>, &mut Box<T>>(o))
-                }
-            } else {
-                panic!("Error while retrieving storage of {}. Invalid type", s)
-            }
-        }
-    }
-
-    pub fn exists(&self, s: &str) -> bool {
-        self.safe.contains_key(s)
-    }
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
             handler,
+            scheduler,
+            safe,
         }
     }
 }

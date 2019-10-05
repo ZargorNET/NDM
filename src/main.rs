@@ -9,6 +9,7 @@ extern crate serde_json;
 extern crate serenity;
 extern crate simplelog;
 extern crate tempfile;
+extern crate time;
 
 use std::fs::File;
 use std::sync::Arc;
@@ -18,14 +19,34 @@ use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
+use crate::commands::animal::DogCatWar;
+use crate::safe::Safe;
+use crate::scheduler::{ScheduleArguments, Scheduler};
 
+mod safe;
+mod scheduler;
 #[macro_use]
 mod command_framework;
 mod commands;
 
 
 struct Handler {
-    ch: Arc<RwLock<CommandManager>>
+    ch: Arc<RwLock<CommandManager>>,
+    scheduler: Arc<RwLock<Scheduler>>,
+    safe: Arc<RwLock<Safe>>,
+}
+
+impl Handler {
+    fn new(ch: CommandManager) -> Handler {
+        let ch = Arc::new(RwLock::new(ch));
+        let safe = Arc::new(RwLock::new(Safe::new()));
+        let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe));
+        Handler {
+            ch,
+            scheduler,
+            safe,
+        }
+    }
 }
 
 impl EventHandler for Handler {
@@ -55,7 +76,7 @@ impl EventHandler for Handler {
             }
         } // DROP READ LOCK
         {
-            let args = CommandArguments::new(&ctx, &msg, Arc::clone(&self.ch));
+            let args = CommandArguments::new(&ctx, &msg, Arc::clone(&self.ch), Arc::clone(&self.scheduler), Arc::clone(&self.safe));
             match (cmd.func)(args) {
                 Ok(print_usage) => {
                     if print_usage {
@@ -78,7 +99,10 @@ impl EventHandler for Handler {
     }
 
     fn ready(&self, ctx: Context, _red: Ready) {
-        ctx.set_activity(Activity::playing("trying to outperform NDM..."));
+        let scheduler = Arc::clone(&self.scheduler);
+        let mut scheduler = scheduler.write();
+        scheduler.schedule_repeated(5, fetch_memes);
+        ctx.set_activity(Activity::playing("trying to outperform NDM 1.0..."));
     }
 }
 
@@ -104,10 +128,11 @@ fn main() {
     {
         command_handler.register_command(&commands::help::HELP_COMMAND);
         command_handler.register_command(&commands::ERROR_CMD_TEST);
-        command_handler.register_command(&commands::aninmal::cat::CAT_COMMAND);
-        command_handler.register_command(&commands::aninmal::dog::DOG_COMMAND);
-        command_handler.register_command(&commands::aninmal::dog::DOG_BREEDS_COMMAND);
-        command_handler.register_command(&commands::aninmal::dog_cat_war::DOG_CAT_WAR_COMMAND);
+        command_handler.register_command(&commands::animal::cat::CAT_COMMAND);
+        command_handler.register_command(&commands::animal::dog::DOG_COMMAND);
+        command_handler.register_command(&commands::animal::dog::DOG_BREEDS_COMMAND);
+        command_handler.register_command(&commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND);
+        command_handler.register_command(&commands::meme::MEME_COMMAND);
 
 
         for command in command_handler.get_all_commands().iter() {
@@ -117,6 +142,8 @@ fn main() {
 
     // START CLIENT
     info!("Starting client");
-    let mut client = Client::new(&discord_token, Handler { ch: Arc::new(RwLock::new(command_handler)) }).expect("Could not create Client");
+    let mut client = Client::new(&discord_token, Handler::new(command_handler)).expect("Could not create Client");
     client.start().expect("Could not start discord client");
 }
+
+fn fetch_memes(args: ScheduleArguments) {}

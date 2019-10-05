@@ -2,7 +2,8 @@ use crate::command_framework::{Command, CommandError};
 
 mod util;
 pub mod help;
-pub mod aninmal;
+pub mod animal;
+pub mod meme;
 
 pub const CATEGORY_IMAGES: &'static str = "Images";
 
