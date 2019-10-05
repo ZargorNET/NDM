@@ -1,0 +1,22 @@
+[package]
+name = "discordbot"
+version = "0.1.0"
+authors = ["Conner <zargor3@gmail.com>"]
+edition = "2018"
+
+
+[dependencies]
+log = "^0.4"
+simplelog = "^0.7.3"
+reqwest = "0.9.21"
+tempfile = "3.1.0"
+serde = "1.0.97"
+serde_json = "1.0"
+chrono = "0.4.9"
+log-panics = "2.0.0"
+rand = "0.7"
+
+[dependencies.serenity]
+version = "0.7"
+features = ["builder", "cache", "client", "gateway", "http", "model", "utils", "default_native_tls"]
+default-features = false
