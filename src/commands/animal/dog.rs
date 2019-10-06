@@ -108,12 +108,16 @@ fn dog_breed_command(args: CommandArguments) -> CommandResult {
 
     let breeds: DogBreeds = unwrap_cmd_err!(&DOG_BREEDS_COMMAND, serde_json::from_str(&breeds_res), "could not parse dog breed's body to json");
 
-    let mut s = "".to_owned();
+    let mut s: Vec<String> = Vec::with_capacity(breeds.message.len());
 
 
-    for (k, _) in breeds.message.iter() {
-        s.push_str(&format!("{}\n", k));
+    for (k, _) in breeds.message.into_iter() {
+        s.push(k);
     }
+
+    s.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+
+    let s = s.join("\n");
 
     let _ = args.m.channel_id.send_message(args.ctx, |mb| {
         mb.embed(|mut eb| {

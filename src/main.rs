@@ -1,3 +1,4 @@
+extern crate base64;
 extern crate chrono;
 #[macro_use]
 extern crate log;
@@ -134,6 +135,8 @@ fn main() {
         command_handler.register_command(&commands::animal::dog::DOG_BREEDS_COMMAND);
         command_handler.register_command(&commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND);
         command_handler.register_command(&commands::meme::MEME_COMMAND);
+        command_handler.register_command(&commands::about::ABOUT_COMMAND);
+        command_handler.register_command(&commands::urban::URBAN_COMMAND);
 
 
         for command in command_handler.get_all_commands().iter() {

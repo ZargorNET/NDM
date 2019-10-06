@@ -16,6 +16,7 @@ time = "0.1"
 chrono = "0.4.9"
 log-panics = "2.0.0"
 rand = "0.7"
+base64 = "0.10.1"
 
 [dependencies.serenity]
 version = "0.7"

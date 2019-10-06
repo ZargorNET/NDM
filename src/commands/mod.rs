@@ -4,6 +4,8 @@ mod util;
 pub mod help;
 pub mod animal;
 pub mod meme;
+pub mod about;
+pub mod urban;
 
 pub const CATEGORY_IMAGES: &'static str = "Images";
 
@@ -12,7 +14,7 @@ pub static ERROR_CMD_TEST: Command = Command {
     description: "",
     help_page: "",
     category: "",
-    func: |_| {
-        Err(CommandError::new_str(&ERROR_CMD_TEST, "test error"))
+    func: |a| {
+        Ok(true)
     },
 };

@@ -119,6 +119,7 @@ impl error::Error for CommandError {
 macro_rules! unwrap_cmd_err {
     ($cmd:expr, $func:expr, $extra:expr) => {
     {
+        use std::error::Error;
         use crate::command_framework::CommandError;
         match $func {
             Ok(o) => o,
