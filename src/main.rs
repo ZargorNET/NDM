@@ -19,15 +19,15 @@ use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
-use crate::commands::animal::DogCatWar;
 use crate::safe::Safe;
-use crate::scheduler::{ScheduleArguments, Scheduler};
+use crate::scheduler::Scheduler;
 
 mod safe;
 mod scheduler;
 #[macro_use]
 mod command_framework;
 mod commands;
+mod schedules;
 
 
 struct Handler {
@@ -101,7 +101,8 @@ impl EventHandler for Handler {
     fn ready(&self, ctx: Context, _red: Ready) {
         let scheduler = Arc::clone(&self.scheduler);
         let mut scheduler = scheduler.write();
-        scheduler.schedule_repeated(5, fetch_memes);
+        scheduler.clear_all();
+        scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
         ctx.set_activity(Activity::playing("trying to outperform NDM 1.0..."));
     }
 }
@@ -145,5 +146,3 @@ fn main() {
     let mut client = Client::new(&discord_token, Handler::new(command_handler)).expect("Could not create Client");
     client.start().expect("Could not start discord client");
 }
-
-fn fetch_memes(args: ScheduleArguments) {}

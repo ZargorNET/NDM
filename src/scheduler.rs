@@ -1,4 +1,3 @@
-use std::cell::Cell;
 use std::sync::Arc;
 
 use chrono::{DateTime, TimeZone, Utc};
@@ -37,6 +36,7 @@ impl Scheduler {
         s
     }
 
+    #[allow(dead_code)]
     pub fn schedule_repeated(&mut self, interval_sec: u64, func: ScheduleFunction) {
         let schedules = Arc::clone(&self.schedules);
         let mut schedules = schedules.write();
@@ -48,6 +48,7 @@ impl Scheduler {
         });
     }
 
+    #[allow(dead_code)]
     pub fn schedule_onetime(&mut self, after_sec: u64, func: ScheduleFunction) {
         let schedules = Arc::clone(&self.schedules);
         let mut schedules = schedules.write();

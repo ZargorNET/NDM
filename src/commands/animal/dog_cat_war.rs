@@ -47,7 +47,7 @@ fn dog_war_command(args: CommandArguments) -> CommandResult {
                 if dog > cat {
                     s_to_print = format!("🐶{}{}🐱\nDOGS ARE WINNING", dog_s, cat_s);
                 } else {
-                    s_to_print = format!("🐱{}{}🐶\nCATS ARE WINNING", cat_s, dog_s);
+                    s_to_print = format!("🐶{}{}🐱\nCATS ARE WINNING", dog_s, cat_s);
                 }
             } else {
                 s_to_print = "No votes yet".to_owned();
