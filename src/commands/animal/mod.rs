@@ -3,6 +3,8 @@ use crate::command_framework::CommandArguments;
 pub mod cat;
 pub mod dog;
 pub mod dog_cat_war;
+pub mod fox;
+pub mod birb;
 
 const DOG_CAT_WAR_STORAGE_KEY: &'static str = "dogcatwar";
 

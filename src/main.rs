@@ -92,8 +92,8 @@ impl EventHandler for Handler {
                 }
                 Err(err) => {
                     let _ = msg.react(&ctx, ReactionType::from("❌"));
-                    let _ = msg.reply(&ctx, "Error while executing command!");
-                    eprintln!("Could not execute command: {:#?}", err);
+                    let _ = msg.reply(&ctx, "I'm sorry, I failed... There was an error executing the command. Please try again later!");
+                    error!("Could not execute command: {:#?}", err);
                 }
             }
         }
@@ -105,6 +105,7 @@ impl EventHandler for Handler {
         scheduler.clear_all();
         scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
+        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
         ctx.set_activity(Activity::playing("trying to outperform NDM 1.0..."));
     }
 }
@@ -138,6 +139,8 @@ fn main() {
         command_handler.register_command(&commands::meme::MEME_COMMAND);
         command_handler.register_command(&commands::about::ABOUT_COMMAND);
         command_handler.register_command(&commands::urban::URBAN_COMMAND);
+        command_handler.register_command(&commands::animal::fox::FOX_COMMAND);
+        command_handler.register_command(&commands::animal::birb::BIRB_COMMAND);
 
 
         for command in command_handler.get_all_commands().iter() {
