@@ -48,8 +48,9 @@ pub fn fetch_dogs(args: ScheduleArguments) {
 
         // GET IMAGES TO BREEDS
 
+        let http_client = reqwest::Client::new();
         for breed in breeds.into_iter() {
-            let mut res = match reqwest::get(&format!("https://dog.ceo/api/breed/{}/images", &breed)) {
+            let mut res = match http_client.execute(http_client.get(&format!("https://dog.ceo/api/breed/{}/images", &breed)).build().unwrap()) {
                 Ok(k) => k,
                 Err(e) => {
                     error!("Could not fetch images for dog breed: {}: {}", &breed, e);
