@@ -1,4 +1,4 @@
-use crate::command_framework::{Command, CommandError};
+use crate::command_framework::Command;
 
 mod util;
 pub mod help;

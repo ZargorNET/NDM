@@ -1,7 +1,4 @@
-use std::fs::Metadata;
-use std::io::Write;
-
-use serenity::http::{AttachmentType, StatusCode};
+use serenity::http::AttachmentType;
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
@@ -44,14 +41,18 @@ fn urban_command(args: CommandArguments) -> CommandResult {
     let mut res = unwrap_cmd_err!(&URBAN_COMMAND, reqwest::get( reqwest::Url::parse(&format!("https://api.urbandictionary.com/v0/define?term={}", term)).unwrap()), "could not make request to urban dictionary");
 
     let text: String = unwrap_cmd_err!(&URBAN_COMMAND, res.text(), "could not read urban dictionary's body");
-    let uo: FullUrbanResponse = unwrap_cmd_err!(&URBAN_COMMAND, serde_json::from_str(&text), "could not parse urban dictionary's json body");
+    let mut uo: FullUrbanResponse = unwrap_cmd_err!(&URBAN_COMMAND, serde_json::from_str(&text), "could not parse urban dictionary's json body");
 
     if uo.list.len() == 0 {
         let _ = args.m.reply(args.ctx, "Term not found. I'm sorry :c");
         return Ok(true);
     }
 
-    let uo = uo.list.first().unwrap();
+    let mut uo = uo.list.first_mut().unwrap();
+    uo.definition = uo.definition.replace("[", "");
+    uo.definition = uo.definition.replace("]", "");
+    uo.example = uo.example.replace("[", "");
+    uo.example = uo.example.replace("]", "");
 
     let mut mug_res = unwrap_cmd_err!(&URBAN_COMMAND, reqwest::get( reqwest::Url::parse(&format!("https://renderer.udimg.com/mug/all.json?background-color=fff200&word={}", term)).unwrap()), "could not make mug request to urban dictionary");
     let mug_text = unwrap_cmd_err!(&URBAN_COMMAND, mug_res.text(), "could not read urban dictionary's mug body");

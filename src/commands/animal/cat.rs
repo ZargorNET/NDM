@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};

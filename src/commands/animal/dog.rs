@@ -1,10 +1,7 @@
-use std::collections::HashMap;
-use std::error::Error;
-
 use rand::Rng;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandError, CommandResult};
+use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 
 pub static DOG_COMMAND: Command = Command {
@@ -37,6 +34,17 @@ const DOG_SLOGANS: &'static [&'static str] = &[
     "i want pettttssssss"
 ];
 
+pub const DOG_CACHE_KEY: &'static str = "dogcache";
+
+pub struct DogCache {
+    pub breeds: Vec<DogBreed>
+}
+
+pub struct DogBreed {
+    pub name: String,
+    pub images: Vec<String>,
+}
+
 fn dog_command(args: CommandArguments) -> CommandResult {
     let split: Vec<&str> = args.m.content.split_whitespace().collect();
 
@@ -48,32 +56,37 @@ fn dog_command(args: CommandArguments) -> CommandResult {
         status: String,
     }
 
-    if split.len() == 1 {
-        // RANDOM DOG
-        let mut dog_res = unwrap_cmd_err!(&DOG_COMMAND, reqwest::get("https://dog.ceo/api/breeds/image/random"), "could not get random dog from service");
-        let dog_res: String = unwrap_cmd_err!(&DOG_COMMAND, dog_res.text(), "could not get random dog's body text from service");
+    let dog_url;
 
-        let dog: DogResponse = unwrap_cmd_err!(&DOG_COMMAND, serde_json::from_str(&dog_res), "could not parse random dog's body text json");
+    {
+        let safe = args.safe.read();
+        let dog_cache = match safe.get::<DogCache>(DOG_CACHE_KEY) {
+            Some(s) => s,
+            None => {
+                let _ = args.m.reply(args.ctx, "Sorry, no dogs cached yet! Please try again later");
+                return Ok(true);
+            }
+        };
 
-        if dog.status != "success" {
-            return Err(CommandError::new_str(&DOG_COMMAND, "dog service did not successfully return"));
-        }
+        let dog_breed;
 
-        dog_url = dog.message;
-    } else if split.len() == 2 {
-        let mut dog_res = unwrap_cmd_err!(&DOG_COMMAND, reqwest::get(&format!("https://dog.ceo/api/breed/{}/images/random", split[1].to_lowercase())), "could not get dog from service");
-        let dog_res: String = unwrap_cmd_err!(&DOG_COMMAND, dog_res.text(), "could not get dog's body text from service");
+        if split.len() == 1 {
+            // RANDOM DOG
+            let index = rand::thread_rng().gen_range(0, dog_cache.breeds.len());
+            dog_breed = dog_cache.breeds.get(index).unwrap();
+        } else if split.len() == 2 {
+            dog_breed = match dog_cache.breeds.iter().find(|b| b.name.to_lowercase() == split[1].to_lowercase()) {
+                Some(s) => s,
+                None => {
+                    let _ = args.m.reply(args.ctx, "Dog breed not found! View all breeds using ``#dogbreeds``");
+                    return Ok(true);
+                }
+            };
+        } else { return Ok(false); }
 
-        let dog: DogResponse = unwrap_cmd_err!(&DOG_COMMAND, serde_json::from_str(&dog_res), "could not parse dog's body text json");
-
-        if dog.status != "success" {
-            let _ = args.m.channel_id.say(args.ctx, "Dog breed unknown. Show all breeds using ``#dogbreeds``");
-            return Ok(true);
-        }
-
-        dog_url = dog.message;
-    } else { return Ok(false); }
-
+        let index = rand::thread_rng().gen_range(0, dog_breed.images.len());
+        dog_url = dog_breed.images.get(index).unwrap().clone();
+    }
     let _ = args.m.channel_id.send_message(args.ctx, |cb| {
         cb.embed(|mut eb| {
             eb.title("GIVE ME DA WOOF!");
@@ -98,26 +111,26 @@ fn dog_command(args: CommandArguments) -> CommandResult {
 }
 
 fn dog_breed_command(args: CommandArguments) -> CommandResult {
-    let mut breeds_res = unwrap_cmd_err!(&DOG_BREEDS_COMMAND, reqwest::get("https://dog.ceo/api/breeds/list/all"), "could not get breed list from service");
-    let breeds_res: String = unwrap_cmd_err!(&DOG_BREEDS_COMMAND, breeds_res.text(), "could not read service's dog breed list body");
+    let mut breeds: Vec<String> = Vec::new();
 
-    #[derive(Serialize, Deserialize)]
-    struct DogBreeds {
-        message: HashMap<String, serde_json::Value>
+    {
+        let safe = args.safe.read();
+        let dog_cache = match safe.get::<DogCache>(DOG_CACHE_KEY) {
+            Some(s) => s,
+            None => {
+                let _ = args.m.reply(args.ctx, "Sorry, no dog breeds cached yet! Please try again later");
+                return Ok(true);
+            }
+        };
+
+        for breed in dog_cache.breeds.iter() {
+            breeds.push(breed.name.clone());
+        }
     }
 
-    let breeds: DogBreeds = unwrap_cmd_err!(&DOG_BREEDS_COMMAND, serde_json::from_str(&breeds_res), "could not parse dog breed's body to json");
+    breeds.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
 
-    let mut s: Vec<String> = Vec::with_capacity(breeds.message.len());
-
-
-    for (k, _) in breeds.message.into_iter() {
-        s.push(k);
-    }
-
-    s.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
-
-    let s = s.join("\n");
+    let s = breeds.join("\n");
 
     let _ = args.m.channel_id.send_message(args.ctx, |mb| {
         mb.embed(|mut eb| {

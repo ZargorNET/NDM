@@ -104,6 +104,7 @@ impl EventHandler for Handler {
         let mut scheduler = scheduler.write();
         scheduler.clear_all();
         scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
+        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
         ctx.set_activity(Activity::playing("trying to outperform NDM 1.0..."));
     }
 }
