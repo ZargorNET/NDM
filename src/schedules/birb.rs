@@ -6,8 +6,9 @@ use crate::scheduler::ScheduleArguments;
 pub fn fetch_birbs(args: ScheduleArguments) {
     let mut glob_birbs: HashSet<String> = HashSet::new();
 
+    let http_client = reqwest::Client::new();
     for _ in 0..5 {
-        let mut res = match reqwest::get("http://shibe.online/api/birds?count=100") {
+        let mut res = match http_client.execute(http_client.get("http://shibe.online/api/birds?count=100").build().unwrap()) {
             Ok(k) => k,
             Err(e) => {
                 error!("could not fetch new birbs: {}", e);
