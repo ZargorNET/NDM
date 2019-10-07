@@ -6,6 +6,7 @@ pub mod animal;
 pub mod meme;
 pub mod about;
 pub mod urban;
+pub mod chuck;
 
 pub const CATEGORY_IMAGES: &'static str = "Images";
 
