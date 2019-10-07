@@ -48,8 +48,6 @@ pub struct DogBreed {
 fn dog_command(args: CommandArguments) -> CommandResult {
     let split: Vec<&str> = args.m.content.split_whitespace().collect();
 
-    let dog_url: String;
-
     #[derive(Serialize, Deserialize)]
     struct DogResponse {
         message: String,

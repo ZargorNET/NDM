@@ -1,4 +1,3 @@
-use reqwest::Url;
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};

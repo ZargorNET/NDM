@@ -58,7 +58,7 @@ fn urban_command(args: CommandArguments) -> CommandResult {
     let mug_text = unwrap_cmd_err!(&URBAN_COMMAND, mug_res.text(), "could not read urban dictionary's mug body");
     let mug: MugResponse = unwrap_cmd_err!(&URBAN_COMMAND, serde_json::from_str(&mug_text), "could not parse urban dictionary's mug json body");
 
-    let mut mug_front = mug.front;
+    let mug_front = mug.front;
     let mug_front: Vec<&str> = mug_front.split(",").collect();
     let mug_front = mug_front[1];
 
