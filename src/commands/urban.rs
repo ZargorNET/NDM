@@ -16,10 +16,7 @@ struct FullUrbanResponse {
     list: Vec<UrbanResponse>
 }
 
-#[derive(Serialize, Deserialize)]
-struct MugResponse {
-    front: String
-}
+
 
 #[derive(Serialize, Deserialize)]
 struct UrbanResponse {
@@ -54,15 +51,8 @@ fn urban_command(args: CommandArguments) -> CommandResult {
     uo.example = uo.example.replace("[", "");
     uo.example = uo.example.replace("]", "");
 
-    let mut mug_res = unwrap_cmd_err!(&URBAN_COMMAND, reqwest::get( reqwest::Url::parse(&format!("https://renderer.udimg.com/mug/all.json?background-color=fff200&word={}", term)).unwrap()), "could not make mug request to urban dictionary");
-    let mug_text = unwrap_cmd_err!(&URBAN_COMMAND, mug_res.text(), "could not read urban dictionary's mug body");
-    let mug: MugResponse = unwrap_cmd_err!(&URBAN_COMMAND, serde_json::from_str(&mug_text), "could not parse urban dictionary's mug json body");
 
-    let mug_front = mug.front;
-    let mug_front: Vec<&str> = mug_front.split(",").collect();
-    let mug_front = mug_front[1];
-
-    let mug_data = unwrap_cmd_err!(&URBAN_COMMAND, base64::decode(&mug_front), "could not decode mug base64");
+    let mug = unwrap_cmd_err!(&URBAN_COMMAND, super::urbanmug::get_mug(&term), "could not get urban mug");
     let mock_mug_filename = format!("{}.jpg", uo.defid);
 
     let result = args.m.channel_id.send_message(args.ctx, |mb| {
@@ -80,7 +70,7 @@ fn urban_command(args: CommandArguments) -> CommandResult {
 
             eb
         });
-        mb.add_file(AttachmentType::Bytes((&mug_data, &mock_mug_filename)));
+        mb.add_file(AttachmentType::Bytes((&mug, &mock_mug_filename)));
         mb
     });
 

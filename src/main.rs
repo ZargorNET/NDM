@@ -142,6 +142,7 @@ fn main() {
         command_handler.register_command(&commands::animal::fox::FOX_COMMAND);
         command_handler.register_command(&commands::animal::birb::BIRB_COMMAND);
         command_handler.register_command(&commands::chuck::CHUCK_COMMAND);
+        command_handler.register_command(&commands::urbanmug::URBANMUG_COMMAND);
 
 
         for command in command_handler.get_all_commands().iter() {
