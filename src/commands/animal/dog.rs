@@ -61,7 +61,7 @@ fn dog_command(args: CommandArguments) -> CommandResult {
         let dog_cache = match safe.get::<DogCache>(DOG_CACHE_KEY) {
             Some(s) => s,
             None => {
-                let _ = args.m.reply(args.ctx, "Sorry, no dogs cached yet! Please try again later");
+                let _ = args.m.reply(args.ctx, "Sorry, no dogs cached yet! Please try again later :dog2:");
                 return Ok(true);
             }
         };
