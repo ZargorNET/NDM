@@ -51,7 +51,21 @@ impl Handler {
     }
 }
 
+impl Handler {
+    fn update_activity(&self, ctx: &Context) {
+        ctx.set_activity(Activity::playing(&format!("#help | {} guilds", ctx.cache.read().all_guilds().len())));
+    }
+}
 impl EventHandler for Handler {
+    fn guild_create(&self, ctx: Context, _guild: Guild, _b: bool) {
+        self.update_activity(&ctx);
+    }
+
+    fn guild_delete(&self, ctx: Context, _incomplete: PartialGuild, _full: Option<Arc<RwLock<Guild>>>) {
+        self.update_activity(&ctx);
+    }
+
+
     fn message(&self, ctx: Context, msg: Message) {
         if msg.author.bot {
             return;
@@ -100,6 +114,7 @@ impl EventHandler for Handler {
         }
     }
 
+
     fn ready(&self, ctx: Context, _red: Ready) {
         let scheduler = Arc::clone(&self.scheduler);
         let mut scheduler = scheduler.write();
@@ -109,7 +124,8 @@ impl EventHandler for Handler {
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
         scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
-        ctx.set_activity(Activity::playing("trying to outperform NDM 1.0..."));
+        self.update_activity(&ctx);
+        info!("Bot started!");
     }
 }
 
