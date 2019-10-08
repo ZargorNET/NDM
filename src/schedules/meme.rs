@@ -1,53 +1,11 @@
-use crate::commands;
+use crate::{commands, util};
 use crate::scheduler::ScheduleArguments;
 
-#[derive(Serialize, Deserialize)]
-struct RedditResponse {
-    data: RedditResponseData,
-}
-
-#[derive(Serialize, Deserialize)]
-struct RedditResponseData {
-    children: Vec<RedditResponseChildren>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct RedditResponseChildren {
-    kind: String,
-    data: RedditResponseChildrenData,
-}
-
-#[derive(Serialize, Deserialize)]
-struct RedditResponseChildrenData {
-    #[serde(rename = "subreddit_name_prefixed")]
-    subreddit: String,
-    title: String,
-    author: String,
-    ups: i32,
-    permalink: String,
-    url: String,
-}
-
 pub fn fetch_memes(args: ScheduleArguments) {
-    let mut res = match reqwest::get("https://www.reddit.com/user/zargornet/m/dcbot/.json?sort=top&t=day&limit=100") {
-        Ok(r) => r,
+    let reddit_res = match util::reddit::fetch_reddit_images("https://www.reddit.com/user/zargornet/m/dcbot/.json?sort=top&t=day&limit=100") {
+        Ok(k) => k,
         Err(e) => {
-            error!("Could not get reddit memes: {}", e);
-            return;
-        }
-    };
-    let text = match res.text() {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Could not get reddit meme's body: {}", e);
-            return;
-        }
-    };
-
-    let reddit_res: RedditResponse = match serde_json::from_str(&text) {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Could not parse reddit meme's body {}", e);
+            error!("MEME SCHEDULER: could not fetch reddit memes: {}", e);
             return;
         }
     };
@@ -68,7 +26,7 @@ pub fn fetch_memes(args: ScheduleArguments) {
         })
     }
 
-    info!("Fetched {} memes!", memes.len());
+    info!("MEME SCHEDULER: Fetched {} memes!", memes.len());
 
     let mut safe = args.safe.write();
     safe.store(commands::meme::MEME_CACHE_KEY, memes);

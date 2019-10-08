@@ -10,7 +10,7 @@ pub fn fetch_birbs(args: ScheduleArguments) {
         let mut res = match http_client.execute(http_client.get("http://shibe.online/api/birds?count=100").build().unwrap()) {
             Ok(k) => k,
             Err(e) => {
-                error!("could not fetch new birbs: {}", e);
+                error!("BIRB SCHEDULER: could not fetch new birbs: {}", e);
                 return;
             }
         };
@@ -18,7 +18,7 @@ pub fn fetch_birbs(args: ScheduleArguments) {
         let text = match res.text() {
             Ok(k) => k,
             Err(e) => {
-                error!("could not read body of birb service: {}", e);
+                error!("BIRB SCHEDULER: could not read body of birb service: {}", e);
                 return;
             }
         };
@@ -26,7 +26,7 @@ pub fn fetch_birbs(args: ScheduleArguments) {
         let birbs: Vec<String> = match serde_json::from_str(&text) {
             Ok(k) => k,
             Err(e) => {
-                error!("could not parse json of birb service: {}", e);
+                error!("BIRB SCHEDULER: could not parse json of birb service: {}", e);
                 return;
             }
         };
@@ -41,5 +41,5 @@ pub fn fetch_birbs(args: ScheduleArguments) {
 
     let mut safe = args.safe.write();
     safe.store(crate::commands::animal::birb::BIRB_CACHE_KEY, glob_vec);
-    info!("Fetched {} birbs!", amount);
+    info!("BIRB SCHEDULER: Fetched {} birbs!", amount);
 }

@@ -23,6 +23,7 @@ use crate::command_framework::{CommandArguments, CommandManager};
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
 
+mod util;
 mod safe;
 mod scheduler;
 #[macro_use]
