@@ -34,4 +34,6 @@ pub struct RedditResponseChildrenData {
     pub ups: i32,
     pub permalink: String,
     pub url: String,
+    #[serde(default)]
+    pub post_hint: String,
 }

@@ -5,6 +5,7 @@ pub mod dog;
 pub mod dog_cat_war;
 pub mod fox;
 pub mod birb;
+pub mod rabbit;
 
 const DOG_CAT_WAR_STORAGE_KEY: &'static str = "dogcatwar";
 

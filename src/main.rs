@@ -107,6 +107,7 @@ impl EventHandler for Handler {
         scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
+        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
         ctx.set_activity(Activity::playing("trying to outperform NDM 1.0..."));
     }
 }
@@ -144,6 +145,7 @@ fn main() {
         command_handler.register_command(&commands::animal::birb::BIRB_COMMAND);
         command_handler.register_command(&commands::chuck::CHUCK_COMMAND);
         command_handler.register_command(&commands::urbanmug::URBANMUG_COMMAND);
+        command_handler.register_command(&commands::animal::rabbit::RABBIT_COMMAND);
 
 
         for command in command_handler.get_all_commands().iter() {
