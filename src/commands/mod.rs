@@ -16,7 +16,7 @@ pub static ERROR_CMD_TEST: Command = Command {
     description: "",
     help_page: "",
     category: "",
-    func: |a| {
+    func: |_a| {
         Ok(true)
     },
 };

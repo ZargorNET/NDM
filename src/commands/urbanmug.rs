@@ -1,7 +1,6 @@
 use std::error;
 
 use serenity::http::AttachmentType;
-use serenity::model::channel::Attachment;
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};

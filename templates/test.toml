@@ -1,0 +1,11 @@
+name = "test"
+
+[[features]]
+key = "a"
+kind = "text"
+x = 0
+y = 0
+w = 300
+h = 300
+font_size = 32
+font_color = [255,0,0,255]

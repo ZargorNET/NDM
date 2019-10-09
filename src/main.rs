@@ -1,9 +1,12 @@
 extern crate base64;
 extern crate chrono;
+extern crate image;
+extern crate imageproc;
 #[macro_use]
 extern crate log;
 extern crate log_panics;
 extern crate rand;
+extern crate rusttype;
 #[macro_use]
 extern crate serde;
 extern crate serde_json;
@@ -11,8 +14,11 @@ extern crate serenity;
 extern crate simplelog;
 extern crate tempfile;
 extern crate time;
+extern crate toml;
 
 use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 use std::sync::Arc;
 
 use serenity::model::prelude::*;
@@ -30,7 +36,6 @@ mod scheduler;
 mod command_framework;
 mod commands;
 mod schedules;
-
 
 struct Handler {
     ch: Arc<RwLock<CommandManager>>,
@@ -56,6 +61,7 @@ impl Handler {
         ctx.set_activity(Activity::playing(&format!("#help | {} guilds", ctx.cache.read().all_guilds().len())));
     }
 }
+
 impl EventHandler for Handler {
     fn guild_create(&self, ctx: Context, _guild: Guild, _b: bool) {
         self.update_activity(&ctx);
@@ -130,6 +136,16 @@ impl EventHandler for Handler {
 }
 
 fn main() {
+    let save = util::image::ImageStorage::load(Path::new("./templates/")).unwrap();
+    let mut pt = save.start_building("test").unwrap();
+    pt.set_text("a", "hey".to_owned()).unwrap();
+    let t = pt.build().unwrap();
+    let i = t.apply().unwrap();
+    let mut file = File::create("test1.png").unwrap();
+    file.write_all(&i);
+//
+
+    return;
     CombinedLogger::init(
         vec![
             TermLogger::new(LevelFilter::Info, Config::default(), TerminalMode::Mixed).unwrap(),
