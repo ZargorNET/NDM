@@ -1,0 +1,11 @@
+name = "floor"
+
+[[features]]
+key = "t"
+kind = "text"
+x = 160
+y = 25
+w = 330
+h = 60
+font_size = 44
+font_color = [0,0,0,255]

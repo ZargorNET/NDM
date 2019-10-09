@@ -1,0 +1,11 @@
+name = "disaster"
+
+[[features]]
+key = "t"
+kind = "text"
+x = 20
+y = 290
+w = 450
+h = 80
+font_size = 64
+font_color = [255,255,255,255]

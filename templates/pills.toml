@@ -1,0 +1,11 @@
+name = "pills"
+
+[[features]]
+key = "t"
+kind = "text"
+x = 200
+y = 660
+w = 250
+h = 250
+font_size = 64
+font_color = [255,255,255,255]

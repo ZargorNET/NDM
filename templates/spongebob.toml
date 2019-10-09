@@ -1,0 +1,11 @@
+name = "spongebob"
+
+[[features]]
+key = "t"
+kind = "text"
+x = 5
+y = 0
+w = 490
+h = 80
+font_size = 64
+font_color = [255,255,255,255]
