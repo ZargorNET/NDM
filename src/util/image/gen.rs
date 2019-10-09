@@ -32,14 +32,14 @@ pub fn generate_image_text(dimension: &Dimension, font_settings: &FontSettings, 
     let mut font_size = font_settings.size;
     let mut char_width = font_size;
     let mut char_height = font_size;
+    /*
+        let width = char_width * text.chars().count() as f32;
 
-    let width = char_width * text.chars().count() as f32;
-
-    if width > dimension.w as f32 {
-        font_size = (font_size * dimension.w as f32 / width).floor();
-        char_width = font_size;
-        char_height = font_size;
-    }
+        if width > dimension.w as f32 {
+            font_size = (font_size * dimension.w as f32 / width).floor();
+            char_width = font_size;
+            char_height = font_size;
+        }*/
 
     let scale = Scale {
         x: char_width,
