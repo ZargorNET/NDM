@@ -17,7 +17,6 @@ extern crate time;
 extern crate toml;
 
 use std::fs::File;
-use std::io::Write;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -41,10 +40,11 @@ struct Handler {
     ch: Arc<RwLock<CommandManager>>,
     scheduler: Arc<RwLock<Scheduler>>,
     safe: Arc<RwLock<Safe>>,
+    image: Arc<util::image::ImageStorage>,
 }
 
 impl Handler {
-    fn new(ch: CommandManager) -> Handler {
+    fn new(ch: CommandManager, image: Arc<util::image::ImageStorage>) -> Handler {
         let ch = Arc::new(RwLock::new(ch));
         let safe = Arc::new(RwLock::new(Safe::new()));
         let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe));
@@ -52,6 +52,7 @@ impl Handler {
             ch,
             scheduler,
             safe,
+            image,
         }
     }
 }
@@ -98,7 +99,12 @@ impl EventHandler for Handler {
             }
         } // DROP READ LOCK
         {
-            let args = CommandArguments::new(&ctx, &msg, Arc::clone(&self.ch), Arc::clone(&self.scheduler), Arc::clone(&self.safe));
+            let args = CommandArguments::new(&ctx,
+                                             &msg,
+                                             Arc::clone(&self.ch),
+                                             Arc::clone(&self.scheduler),
+                                             Arc::clone(&self.safe),
+                                             Arc::clone(&self.image));
             match (cmd.func)(args) {
                 Ok(print_usage) => {
                     if print_usage {
@@ -136,16 +142,6 @@ impl EventHandler for Handler {
 }
 
 fn main() {
-    let save = util::image::ImageStorage::load(Path::new("./templates/")).unwrap();
-    let mut pt = save.start_building("test").unwrap();
-    pt.set_text("a", "hey".to_owned()).unwrap();
-    let t = pt.build().unwrap();
-    let i = t.apply().unwrap();
-    let mut file = File::create("test1.png").unwrap();
-    file.write_all(&i);
-//
-
-    return;
     CombinedLogger::init(
         vec![
             TermLogger::new(LevelFilter::Info, Config::default(), TerminalMode::Mixed).unwrap(),
@@ -180,6 +176,7 @@ fn main() {
         command_handler.register_command(&commands::urbanmug::URBANMUG_COMMAND);
         command_handler.register_command(&commands::animal::rabbit::RABBIT_COMMAND);
         command_handler.register_command(&commands::animal::aww::AWW_COMMAND);
+        command_handler.register_command(&commands::make::MAKE_COMMAND);
 
 
         for command in command_handler.get_all_commands().iter() {
@@ -187,8 +184,12 @@ fn main() {
         }
     }
 
+    let templates_path = Path::new("./templates/");
+
     // START CLIENT
     info!("Starting client");
-    let mut client = Client::new(&discord_token, Handler::new(command_handler)).expect("Could not create Client");
+    let mut client = Client::new(&discord_token, Handler::new(command_handler,
+                                                              Arc::new(util::image::ImageStorage::load(templates_path).expect("could not create image storage")),
+    )).expect("Could not create Client");
     client.start().expect("Could not start discord client");
 }

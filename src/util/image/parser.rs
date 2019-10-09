@@ -71,8 +71,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 "text" => FeatureType::Text,
                 "image" => FeatureType::Image,
                 _ => {
-                    warn!("TEMPLATE PARSER: template {} has a feature with an invalid kind", &metadata.name);
-                    continue;
+                    return Err(Error::InvalidFeatureType);
                 }
             };
             let dimension = Dimension {
@@ -121,6 +120,7 @@ struct TemplateFileFeature {
 #[derive(Debug)]
 pub enum Error {
     PathNotDir,
+    InvalidFeatureType,
     IoError(io::Error),
     TomlError(toml::de::Error),
     ImageError(image::ImageError),
@@ -130,6 +130,7 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match *self {
+            Self::InvalidFeatureType => write!(f, "feature type/kind is unknown"),
             Self::PathNotDir => write!(f, "path ist not a directory"),
             Self::IoError(ref e) => e.fmt(f),
             Self::TomlError(ref e) => write!(f, "could not parse metadata file: {}", e),
@@ -142,6 +143,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match *self {
+            Self::InvalidFeatureType => None,
             Self::PathNotDir => None,
             Self::IoError(ref e) => Some(e),
             Self::TomlError(ref e) => Some(e),

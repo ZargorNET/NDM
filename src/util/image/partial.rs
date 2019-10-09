@@ -9,7 +9,7 @@ pub struct PartialTemplate {
     pub(super) key: String,
     pub(super) base: DynamicImage,
     pub(super) features: HashMap<String, PartialFeature>,
-    pub(super) built_features: Vec<Box<dyn super::feature::Feature>>,
+    pub(super) built_features: Vec<Box<dyn super::feature::Feature + Send + Sync>>,
 }
 
 #[derive(Clone)]

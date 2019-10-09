@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::error;
 use std::path::Path;
 
@@ -7,11 +8,11 @@ pub use gen::Dimension;
 pub use gen::FontSettings;
 
 use crate::util::image::feature::Feature;
-use crate::util::image::partial::PartialTemplate;
+use crate::util::image::partial::{PartialFeature, PartialTemplate};
 
 mod gen;
 mod parser;
-mod partial;
+pub mod partial;
 pub mod feature;
 
 pub struct ImageStorage {
@@ -31,10 +32,30 @@ impl ImageStorage {
         })
     }
     pub fn start_building(&self, key: &str) -> Option<PartialTemplate> {
-        match self.storage.iter().find(|t| t.key == key) {
+        let storage = &self.storage;
+        match storage.iter().find(|t| t.key == key) {
             Some(s) => Some(s.clone()),
             None => None
         }
+    }
+
+    pub fn get_all_keys(&self) -> Vec<String> {
+        let storage = &self.storage;
+        let mut ret = Vec::with_capacity(storage.len());
+        for pt in storage.iter() {
+            ret.push(pt.key.clone());
+        }
+        ret
+    }
+
+    /// Returns None if the key cannot be found in the Vec
+    pub fn get_required_features(&self, key: &str) -> Option<HashMap<String, PartialFeature>> {
+        let pt = match self.storage.iter().find(|t| t.key == key) {
+            Some(s) => s,
+            None => return None
+        };
+
+        Some(pt.features.clone())
     }
 }
 
@@ -42,7 +63,7 @@ impl ImageStorage {
 pub struct Template {
     pub name: String,
     pub base: DynamicImage,
-    pub features: Vec<Box<dyn Feature>>,
+    pub features: Vec<Box<dyn Feature + Send + Sync>>,
 }
 
 impl Template {

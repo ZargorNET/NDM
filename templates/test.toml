@@ -9,3 +9,11 @@ w = 300
 h = 300
 font_size = 32
 font_color = [255,0,0,255]
+
+[[features]]
+key = "b"
+kind = "image"
+x = 100
+y = 100
+w = 300
+h = 300

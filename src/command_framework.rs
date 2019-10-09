@@ -7,6 +7,7 @@ use serenity::prelude::{Context, RwLock};
 
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
+use crate::util;
 
 pub struct CommandManager {
     commands: Vec<&'static Command>
@@ -27,6 +28,7 @@ pub struct CommandArguments<'a> {
     pub handler: Arc<RwLock<CommandManager>>,
     pub scheduler: Arc<RwLock<Scheduler>>,
     pub safe: Arc<RwLock<Safe>>,
+    pub image: Arc<util::image::ImageStorage>,
 }
 
 #[derive(Clone)]
@@ -78,13 +80,14 @@ impl CommandManager {
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
             handler,
             scheduler,
             safe,
+            image,
         }
     }
 }
@@ -119,6 +122,7 @@ impl error::Error for CommandError {
 macro_rules! unwrap_cmd_err {
     ($cmd:expr, $func:expr, $extra:expr) => {
     {
+        #[allow(unused_imports)]
         use std::error::Error;
         use crate::command_framework::CommandError;
         match $func {

@@ -8,6 +8,7 @@ pub mod about;
 pub mod urban;
 pub mod chuck;
 pub mod urbanmug;
+pub mod make;
 
 pub const CATEGORY_IMAGES: &'static str = "Images";
 
