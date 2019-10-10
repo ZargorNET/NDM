@@ -1,11 +1,27 @@
 name = "floor"
 
 [[features]]
+key = "target1"
+kind = "image"
+x = 90
+y = 80
+w = 80
+h = 80
+
+[[features]]
+key = "target2"
+kind = "image"
+x = 290
+y = 80
+w = 80
+h = 80
+
+[[features]]
 key = "t"
 kind = "text"
 x = 160
 y = 25
 w = 330
-h = 60
+h = 44
 font_size = 44
 font_color = [0,0,0,255]

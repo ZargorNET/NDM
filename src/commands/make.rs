@@ -55,13 +55,13 @@ fn make_command(args: CommandArguments) -> CommandResult {
     };
     let feature_count = required_features.len();
 
-    let mut images = HashMap::new();
+    let mut images: Vec<(String, PartialFeature)> = Vec::new();
     let mut text: Option<(String, PartialFeature)> = None;
 
     for (k, v) in required_features {
         match v.kind {
             FeatureType::Image => {
-                images.insert(k, v);
+                images.push((k, v));
             }
             FeatureType::Text => {
                 if text.is_some() {
