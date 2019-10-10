@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 use std::io::Read;
+use std::sync::Arc;
 
 use reqwest::Response;
 use serenity::http::AttachmentType;
+use serenity::model::user::User;
+use serenity::prelude::RwLock;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::util::image::feature::FeatureType;
@@ -92,27 +95,42 @@ fn make_command(args: CommandArguments) -> CommandResult {
         });
         return Ok(true);
     }
-
     let mut tp = args.image.start_building(&make_name).unwrap();
 
     let mut args_index = 2usize;
     let mut mention_index = 0usize;
+
+    let mentioned_user_ids = super::util::parse_mentions(&args.m.content);
+    let mut mentions: Vec<Arc<RwLock<User>>> = Vec::with_capacity(mentioned_user_ids.len());
+    for id in mentioned_user_ids {
+        let l = args.ctx.cache.read();
+        let user = match l.user(id.parse::<u64>().unwrap()) {
+            Some(s) => s,
+            None => continue
+        };
+        mentions.push(user);
+    }
+
     let http = reqwest::Client::new();
     for (k, _v) in images {
-        let mention = match args.m.mentions.get(mention_index) {
-            Some(s) => s,
-            None => {
-                let _ = args.m.reply(args.ctx, "Sorry, you've entered an invalid target user! Please try again");
-                return Ok(true);
-            }
-        };
-        let mut avatar = match mention.avatar_url() {
-            Some(s) => s,
-            None => {
-                let _ = args.m.reply(args.ctx, "Sorry, at least one of your target users doesn't have a custom avatar");
-                return Ok(true);
-            }
-        };
+        let mut avatar;
+        {
+            let mention = match mentions.get(mention_index) {
+                Some(s) => s,
+                None => {
+                    let _ = args.m.reply(args.ctx, "Sorry, you've entered an invalid target user! Please try again");
+                    return Ok(true);
+                }
+            };
+            let mention = mention.read();
+            avatar = match mention.avatar_url() {
+                Some(s) => s,
+                None => {
+                    let _ = args.m.reply(args.ctx, "Sorry, at least one of your target users doesn't have a custom avatar");
+                    return Ok(true);
+                }
+            };
+        } // RELEASE LOCK
         avatar = avatar.replace(".webp?size=1024", ".png?size=512"); // IMAGE LIB DOES NOT FULLY SUPPORT .WEBP
 
         let url = unwrap_cmd_err!(&MAKE_COMMAND, reqwest::Url::parse(&avatar), "could not build avatar url");

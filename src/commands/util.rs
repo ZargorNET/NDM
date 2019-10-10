@@ -35,3 +35,20 @@ pub fn shorten_string(s: &str, max_length: usize) -> String {
     s.push_str("...");
     s
 }
+
+/// Returns a Vec with user ids
+pub fn parse_mentions(s: &str) -> Vec<String> {
+    lazy_static! {
+        static ref REG: regex::Regex = regex::Regex::new(r#"<@(?P<id>[0-9]+)>"#).expect("could not compile regex");
+    }
+    let mut ret = Vec::new();
+    let res = REG.captures_iter(s);
+    for c in res {
+        let id = match c.name("id") {
+            Some(s) => s,
+            None => continue
+        };
+        ret.push(id.as_str().to_owned());
+    }
+    ret
+}
