@@ -1,0 +1,9 @@
+name = "warn"
+
+[[features]]
+key = "dangerous"
+kind = "image"
+x = 65
+y = 120
+w = 320
+h = 220
