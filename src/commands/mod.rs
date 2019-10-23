@@ -9,15 +9,3 @@ pub mod urban;
 pub mod chuck;
 pub mod urbanmug;
 pub mod make;
-
-pub const CATEGORY_IMAGES: &'static str = "Images";
-
-pub static ERROR_CMD_TEST: Command = Command {
-    key: "test",
-    description: "",
-    help_page: "",
-    category: "",
-    func: |_a| {
-        Ok(true)
-    },
-};

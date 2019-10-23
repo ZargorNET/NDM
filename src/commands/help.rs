@@ -4,7 +4,7 @@ pub static HELP_COMMAND: Command = Command {
     key: "help",
     description: "hey",
     help_page: "",
-    category: "",
+    category: "Misc",
     func: help_command,
 };
 

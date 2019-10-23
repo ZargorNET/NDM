@@ -165,7 +165,6 @@ fn main() {
     let mut command_handler = CommandManager::new();
     {
         command_handler.register_command(&commands::help::HELP_COMMAND);
-        command_handler.register_command(&commands::ERROR_CMD_TEST);
         command_handler.register_command(&commands::animal::cat::CAT_COMMAND);
         command_handler.register_command(&commands::animal::dog::DOG_COMMAND);
         command_handler.register_command(&commands::animal::dog::DOG_BREEDS_COMMAND);

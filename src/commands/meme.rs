@@ -8,7 +8,7 @@ pub static MEME_COMMAND: Command = Command {
     key: "meme",
     description: "Gets a random meme",
     help_page: "#meme",
-    category: "Meme",
+    category: "Fun",
     func: meme_command,
 };
 

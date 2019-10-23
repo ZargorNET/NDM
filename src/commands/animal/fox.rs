@@ -7,7 +7,7 @@ pub static FOX_COMMAND: Command = Command {
     key: "fox",
     description: "Gives you random fox",
     help_page: "#fox",
-    category: "Animal",
+    category: "Animals",
     func: fox_command,
 };
 

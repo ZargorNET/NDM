@@ -7,7 +7,7 @@ pub static CHUCK_COMMAND: Command = Command {
     key: "chuck",
     description: "Gets you a random chuck norris joke",
     help_page: "#chuck [<optional:Name>]",
-    category: "Jokes",
+    category: "Fun",
     func: chuck_command,
 };
 

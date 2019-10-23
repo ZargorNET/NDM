@@ -7,7 +7,7 @@ pub static URBAN_COMMAND: Command = Command {
     key: "urban",
     description: "Searches a term on UrbanDictionary",
     help_page: "#urban <term>",
-    category: "Misc",
+    category: "Fun",
     func: urban_command,
 };
 
