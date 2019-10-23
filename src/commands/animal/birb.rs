@@ -8,7 +8,7 @@ pub static BIRB_COMMAND: Command = Command {
     key: "birb",
     description: "Gets a random birb",
     help_page: "#birb",
-    category: "Animal",
+    category: "Animals",
     func: birb_command,
 };
 

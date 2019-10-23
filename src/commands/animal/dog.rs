@@ -8,7 +8,7 @@ pub static DOG_COMMAND: Command = Command {
     key: "dog",
     description: "Shows you a dog :)!",
     help_page: "#dog [<optional: breed>]",
-    category: "Images",
+    category: "Animals",
     func: dog_command,
 };
 
@@ -16,7 +16,7 @@ pub static DOG_BREEDS_COMMAND: Command = Command {
     key: "dogbreeds",
     description: "Shows you all available breeds",
     help_page: "#dogbreeds",
-    category: "Images",
+    category: "Animals",
     func: dog_breed_command,
 };
 

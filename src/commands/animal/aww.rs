@@ -10,7 +10,7 @@ pub static AWW_COMMAND: Command = Command {
     key: "aww",
     description: "r/aww",
     help_page: "#aww",
-    category: "Animal",
+    category: "Animals",
     func: aww_command,
 };
 

@@ -7,7 +7,7 @@ pub static CAT_COMMAND: Command = Command {
     key: "cat",
     description: "Gives you a random cat",
     help_page: "#cat",
-    category: &commands::CATEGORY_IMAGES,
+    category: "Animals",
     func: cat_command,
 };
 

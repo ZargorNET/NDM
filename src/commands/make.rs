@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::io::Read;
 use std::sync::Arc;
 
@@ -19,6 +18,7 @@ pub static MAKE_COMMAND: Command = Command {
     category: "Fun",
     func: make_command,
 };
+
 
 fn make_command(args: CommandArguments) -> CommandResult {
     let split: Vec<&str> = args.m.content.split_whitespace().collect();

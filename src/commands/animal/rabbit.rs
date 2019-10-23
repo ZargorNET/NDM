@@ -10,7 +10,7 @@ pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
     description: "Gets you an hoppyboi",
     help_page: "#rabbit",
-    category: "Animal",
+    category: "Animals",
     func: rabbit_command,
 };
 
