@@ -92,6 +92,7 @@ impl<'a> CommandArguments<'a> {
     }
 }
 
+#[allow(dead_code)]
 impl CommandError {
     pub fn new_str(cmd: &'static Command, err: &str) -> CommandError {
         CommandError {

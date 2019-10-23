@@ -4,7 +4,9 @@ use serenity::builder::CreateEmbed;
 use crate::command_framework::CommandArguments;
 
 /// https://discordapp.com/developers/docs/resources/channel#embed-limits
+#[allow(dead_code)]
 pub const DISCORD_EMBED_TITLE_MAX_LENGTH: usize = 256;
+#[allow(dead_code)]
 pub const DISCORD_EMBED_DESC_MAX_LENGTH: usize = 2048;
 pub const DISCORD_EMBED_FIELD_VALE_MAX_LENGTH: usize = 1024;
 
