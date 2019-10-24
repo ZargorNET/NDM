@@ -14,6 +14,14 @@ pub static BIRB_COMMAND: Command = Command {
 
 pub const BIRB_CACHE_KEY: &'static str = "birbcache";
 
+const BIRB_SLOGANS: &'static [&'static str] = &[
+    "Weird plane. Should do way more noise... It must be coming from AREA 51",
+    "BIRB OR IS IT BIRD",
+    "NEEEEOUUWW PLANE 21 READY TO BOARD PASSENGERS",
+    "WHY CAN'T I BE A SUPERSPORTS CAR *sad noises*",
+    "Maybe I can speak. But maybe you're just hallucinating...",
+];
+
 fn birb_command(args: CommandArguments) -> CommandResult {
     let random_birb;
     {
@@ -32,7 +40,9 @@ fn birb_command(args: CommandArguments) -> CommandResult {
     let _ = args.m.channel_id.send_message(args.ctx, |mb| {
         mb.embed(|mut eb| {
             eb.title("Is it plane?");
-            eb.description("Weird plane. Should do way more noise... It must be coming from AREA 51");
+            let mut ran = rand::thread_rng();
+            let index = ran.gen_range(0, BIRB_SLOGANS.len());
+            eb.description(BIRB_SLOGANS[index]);
             eb.colour(Colour::from_rgb(221, 46, 68));
             eb.image(random_birb);
 
