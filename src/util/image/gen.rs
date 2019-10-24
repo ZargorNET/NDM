@@ -17,7 +17,7 @@ pub struct FontSettings {
     pub color: [u8; 4],
 }
 
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 const FONT: &'static [u8] = include_bytes!("Oswald.ttf");
 
 pub fn generate_image_text(dimension: &Dimension, font_settings: &FontSettings, bg: &DynamicImage, text: &str) -> RgbaImage {
@@ -26,20 +26,17 @@ pub fn generate_image_text(dimension: &Dimension, font_settings: &FontSettings, 
 
     let font = FontCollection::from_bytes(&FONT).expect("could not read font").into_font().unwrap();
 
+
+    let font_size = font_settings.size;
+    let char_width = font_size;
+    let char_height = font_size;
+
     if DEBUG {
         draw_hollow_rect_mut(&mut img, Rect::at(dimension.x as i32, dimension.y as i32).of_size(dimension.w, dimension.h), Rgba([0, 255, 0, 255]));
-    }
-    let mut font_size = font_settings.size;
-    let mut char_width = font_size;
-    let mut char_height = font_size;
-    /*
-        let width = char_width * text.chars().count() as f32;
 
-        if width > dimension.w as f32 {
-            font_size = (font_size * dimension.w as f32 / width).floor();
-            char_width = font_size;
-            char_height = font_size;
-        }*/
+        let width: u32 = (char_width * text.chars().count() as f32).floor() as u32;
+        draw_hollow_rect_mut(&mut img, Rect::at(dimension.x as i32, dimension.y as i32).of_size(width, char_height as u32), Rgba([255, 0, 0, 255]));
+    }
 
     let scale = Scale {
         x: char_width,
