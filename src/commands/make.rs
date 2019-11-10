@@ -58,16 +58,16 @@ fn make_command(args: CommandArguments) -> CommandResult {
     let mut images: Vec<(String, PartialFeature)> = Vec::new();
     let mut text: Option<(String, PartialFeature)> = None;
 
-    for (k, v) in required_features {
-        match v.kind {
+    for f in required_features {
+        match f.kind {
             FeatureType::Image => {
-                images.push((k, v));
+                images.push((f.key.clone(), f));
             }
             FeatureType::Text => {
                 if text.is_some() {
                     warn!("MAKE CMD: Got 2 times or more text features");
                 }
-                text = Some((k, v));
+                text = Some((f.key.clone(), f));
             }
         };
         //

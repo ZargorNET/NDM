@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::error;
 use std::path::Path;
 
@@ -49,13 +48,35 @@ impl ImageStorage {
     }
 
     /// Returns None if the key cannot be found in the Vec
-    pub fn get_required_features(&self, key: &str) -> Option<HashMap<String, PartialFeature>> {
+    #[allow(dead_code)]
+    pub fn get_required_features_with_duplicates(&self, key: &str) -> Option<Vec<PartialFeature>> {
         let pt = match self.storage.iter().find(|t| t.key == key) {
             Some(s) => s,
             None => return None
         };
 
         Some(pt.features.clone())
+    }
+
+    /// Returns None if the key cannot be found
+    /// Ignores duplicates (mostly helpful for help messages)
+    pub fn get_required_features(&self, key: &str) -> Option<Vec<PartialFeature>> {
+        let pt = match self.storage.iter().find(|t| t.key == key) {
+            Some(s) => s,
+            None => return None
+        };
+
+        let mut v = Vec::new();
+
+        for feature in pt.features.iter() {
+            if v.iter().any(|f: &PartialFeature| f.key == feature.key) {
+                continue;
+            }
+
+            v.push(feature.clone());
+        }
+
+        Some(v)
     }
 }
 

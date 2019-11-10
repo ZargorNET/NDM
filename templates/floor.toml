@@ -1,7 +1,7 @@
 name = "floor"
 
 [[features]]
-key = "target1"
+key = "target"
 kind = "image"
 x = 90
 y = 80
@@ -9,7 +9,7 @@ w = 80
 h = 80
 
 [[features]]
-key = "target2"
+key = "target"
 kind = "image"
 x = 290
 y = 80

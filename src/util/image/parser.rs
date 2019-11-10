@@ -1,5 +1,4 @@
 use std::{error, fmt, fs, io};
-use std::collections::HashMap;
 use std::io::Read;
 use std::path::Path;
 
@@ -64,7 +63,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
         toml_file.read_to_string(&mut toml_file_content)?;
 
         let metadata: TemplateMetadataFile = toml::from_str(&toml_file_content)?;
-        let mut features: HashMap<String, PartialFeature> = HashMap::new();
+        let mut features: Vec<PartialFeature> = Vec::new();
 
         for feat in metadata.features {
             let kind = match feat.kind.as_str() {
@@ -81,7 +80,8 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 h: feat.h,
             };
 
-            features.insert(feat.key, PartialFeature {
+            features.push(PartialFeature {
+                key: feat.key,
                 kind,
                 dimension,
                 font_size: feat.font_size,

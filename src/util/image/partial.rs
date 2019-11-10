@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use image::DynamicImage;
 
 use crate::util::image::{Dimension, FontSettings};
@@ -8,12 +6,13 @@ use crate::util::image::feature::FeatureType;
 pub struct PartialTemplate {
     pub(super) key: String,
     pub(super) base: DynamicImage,
-    pub(super) features: HashMap<String, PartialFeature>,
+    pub(super) features: Vec<PartialFeature>,
     pub(super) built_features: Vec<Box<dyn super::feature::Feature + Send + Sync>>,
 }
 
 #[derive(Clone)]
 pub struct PartialFeature {
+    pub key: String,
     pub kind: FeatureType,
     pub dimension: Dimension,
     pub font_size: Option<f32>,
@@ -21,7 +20,7 @@ pub struct PartialFeature {
 }
 
 impl PartialTemplate {
-    pub fn new(key: String, base: DynamicImage, features: HashMap<String, PartialFeature>) -> Self {
+    pub fn new(key: String, base: DynamicImage, features: Vec<PartialFeature>) -> Self {
         Self {
             key,
             base,
@@ -31,54 +30,59 @@ impl PartialTemplate {
     }
 
     pub fn set_text(&mut self, key: &str, text: String) -> Result<(), error::Error> {
-        let f = match self.features.remove(key) {
-            Some(s) => s,
-            None => {
-                return Err(error::Error::KeyNotFound);
-            }
-        };
+        let pfeatures: Vec<PartialFeature> = self.features.iter().filter(|tp| tp.key == key).cloned().collect();
+        self.features.retain(|f| pfeatures.iter().any(|pf| pf.key != f.key));
 
-        if f.kind != FeatureType::Text {
-            return Err(error::Error::WrongType);
+        if pfeatures.is_empty() {
+            return Err(error::Error::KeyNotFound);
         }
 
-        let font_size = match f.font_size {
-            Some(s) => s,
-            None => 24f32
-        };
+        for f in pfeatures {
+            if f.kind != FeatureType::Text {
+                return Err(error::Error::WrongType);
+            }
 
-        let font_color = match f.font_color {
-            Some(s) => s,
-            None => [255, 255, 255, 255]
-        };
-        self.built_features.push(Box::new(super::feature::TextFeature {
-            dimension: f.dimension,
-            font: FontSettings {
-                size: font_size,
-                color: font_color,
-            },
-            text,
-        }));
+            let font_size = match f.font_size {
+                Some(s) => s,
+                None => 24f32
+            };
+
+            let font_color = match f.font_color {
+                Some(s) => s,
+                None => [255, 255, 255, 255]
+            };
+            self.built_features.push(Box::new(super::feature::TextFeature {
+                dimension: f.dimension.clone(),
+                font: FontSettings {
+                    size: font_size,
+                    color: font_color,
+                },
+                text: text.clone(),
+            }));
+        }
 
         Ok(())
     }
 
     pub fn set_image(&mut self, key: &str, other: DynamicImage) -> Result<(), error::Error> {
-        let f = match self.features.remove(key) {
-            Some(s) => s,
-            None => {
-                return Err(error::Error::KeyNotFound);
-            }
-        };
+        let pfeatures: Vec<PartialFeature> = self.features.iter().filter(|tp| tp.key == key).cloned().collect();
+        self.features.retain(|f| pfeatures.iter().any(|pf| pf.key != f.key));
 
-        if f.kind != FeatureType::Image {
-            return Err(error::Error::WrongType);
+        if pfeatures.is_empty() {
+            return Err(error::Error::KeyNotFound);
         }
 
-        self.built_features.push(Box::new(super::feature::ImageFeature {
-            dimension: f.dimension,
-            other,
-        }));
+        for f in pfeatures {
+            if f.kind != FeatureType::Image {
+                return Err(error::Error::WrongType);
+            }
+
+            self.built_features.push(Box::new(super::feature::ImageFeature {
+                dimension: f.dimension.clone(),
+                other: other.clone(),
+            }));
+        }
+
 
         Ok(())
     }
