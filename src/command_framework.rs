@@ -128,7 +128,7 @@ macro_rules! unwrap_cmd_err {
         use crate::command_framework::CommandError;
         match $func {
             Ok(o) => o,
-            Err(err) => return Err(CommandError::new($cmd, format!("{}: {}", $extra, err.description().to_owned())))
+            Err(err) => return Err(CommandError::new($cmd, format!("{}: {}", $extra, err.to_string())))
         }
     }
     };
