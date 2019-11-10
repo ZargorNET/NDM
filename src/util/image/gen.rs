@@ -17,33 +17,80 @@ pub struct FontSettings {
     pub color: [u8; 4],
 }
 
-const DEBUG: bool = false;
+const DEBUG: bool = true;
 const FONT: &'static [u8] = include_bytes!("Oswald.ttf");
 
 pub fn generate_image_text(dimension: &Dimension, font_settings: &FontSettings, bg: &DynamicImage, text: &str) -> RgbaImage {
+    let text = text.to_owned();
+
     let mut img = RgbaImage::new(bg.width(), bg.height());
     copy_image(bg, &mut img);
 
     let font = FontCollection::from_bytes(&FONT).expect("could not read font").into_font().unwrap();
 
-
     let font_size = font_settings.size;
-    let char_width = font_size;
-    let char_height = font_size;
+
+
+    let mut scale = Scale {
+        x: font_size,
+        y: font_size,
+    };
+    let font_vmetrics = font.v_metrics(scale);
+
+    let font_height = font_vmetrics.ascent - font_vmetrics.descent;
+    let mut width = 0f32;
+    for c in text.chars().into_iter() {
+        width += font.glyph(c).scaled(scale).h_metrics().advance_width;
+    }
 
     if DEBUG {
         draw_hollow_rect_mut(&mut img, Rect::at(dimension.x as i32, dimension.y as i32).of_size(dimension.w, dimension.h), Rgba([0, 255, 0, 255]));
-
-        let width: u32 = (char_width * text.chars().count() as f32).floor() as u32;
-        draw_hollow_rect_mut(&mut img, Rect::at(dimension.x as i32, dimension.y as i32).of_size(width, char_height as u32), Rgba([255, 0, 0, 255]));
     }
 
-    let scale = Scale {
-        x: char_width,
-        y: char_height,
-    };
+    let mut lines = Vec::new();
 
-    draw_text_mut(&mut img, Rgba(font_settings.color), dimension.x, dimension.y, scale, &font, &text);
+    if width.ceil() as u32 > dimension.w {
+        let words = text.split_ascii_whitespace();
+
+        let mut t = String::new();
+
+        let mut current_line_width = 0f32;
+        for word in words {
+            let word = format!("{} ", word);
+            let mut word_width = 0f32;
+            for char in word.chars() {
+                word_width += font.glyph(char).scaled(scale).h_metrics().advance_width;
+            }
+            current_line_width += word_width;
+
+            if current_line_width.ceil() as u32 >= dimension.w {
+                current_line_width = 0f32;
+                lines.push(t);
+                t = String::new();
+            }
+            t.push_str(&word);
+        }
+        lines.push(t);
+    } else {
+        lines.push(text);
+    }
+
+    // SCALE TEXT DOWN
+    let line_height = font_height;
+    let total_height = line_height * lines.len() as f32;
+    if total_height.ceil() as u32 > dimension.h {
+        let scale_down_percentage = dimension.h as f32 / total_height;
+        scale = Scale {
+            x: scale.x,
+            y: scale.y * scale_down_percentage,
+        }
+    }
+
+    let final_font_height = font.v_metrics(scale).ascent - font.v_metrics(scale).descent;
+
+    for (i, line) in lines.into_iter().enumerate() {
+        draw_text_mut(&mut img, Rgba(font_settings.color), dimension.x, (dimension.y as f32 + final_font_height * i as f32) as u32, scale, &font, &line);
+    }
 
     img
 }
