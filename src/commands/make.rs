@@ -55,7 +55,7 @@ fn make_command(args: CommandArguments) -> CommandResult {
     };
 
     // SKIP IMAGES
-    let feature_count = required_features.iter().skip_while(|f| f.kind == FeatureType::Image).count();
+    let feature_count = required_features.iter().filter(|f| f.kind != FeatureType::Image).count();
 
     let mut text: Option<PartialFeature> = None;
     let mut images: Vec<PartialFeature> = Vec::new();
@@ -176,7 +176,7 @@ fn make_command(args: CommandArguments) -> CommandResult {
                 Some(s) => s.to_string(),
                 None => {
                     let _ = args.m.reply(args.ctx,
-                                         &format!("Sorry, you've entered some invalid arguments! Please try again or view the help for your command with ``{}``", &make_name));
+                                         &format!("Sorry, you've entered some invalid arguments! Please try again or view the help for your command with ``#make {}``", &make_name));
                     return Ok(true);
                 }
             };
