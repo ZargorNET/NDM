@@ -1,0 +1,56 @@
+# This is just a template file for demonstration purposes
+
+# Step 1: Create a new file named your_file.toml
+# Step 2: Copy this file/some parts to your newly created file
+# Step 3: Add in the same folder as your .toml file the base image
+# Supported extensions for images: .jpg .jpeg .png
+# Enjoy
+
+name = "your_name" # The template file which will be the key to generate your image
+
+# This is entirely optional.
+# If it exists, you don't need to have a base image. In fact, it even will be ignored.
+[empty]
+w = 300 # Width of the base image
+h = 300 # Height of the base image
+
+# Now to the features: A feature is a part of an image which are required to be fullfilled when generating/building the image (exception "image" because you have to specify this argument here).
+# The features will be processed in the order that is specified here.
+# For every currently supported feature, you'll find an entry here.
+
+[[features]]
+key = "key" # The key should be unique. If not, it will share one to-fulfill argument with it's evenly-named partner.
+kind = "user_image" # An user image. The user has to specify the @User#1234 in his arguments
+x = 0 # The x coordinate of the upper left corner of the bounding box
+y = 0 # The y coordinate of the upper left corner of the bounding box
+w = 300 # The bounding box width
+h = 300 # The bounding box height
+
+[[features]]
+key = "jailbars"
+kind = "image" # An image feature will always be replaced with the below specified image
+x = 0
+y = 0
+w = 300
+h = 300
+overlay_image_path = "./templates/jail/jailbars.png" # The image that will be rendered on the given position. Relative to the executing file.
+
+[[features]]
+key = "t"
+kind = "split_text" # The split_text feature takes all arguments until a "," is found and prints them on to the image.
+x = 5
+y = 0
+w = 290
+h = 80
+font_size = 44 # The default size. May be scaled down if there isn't enough place.
+font_color = [255,255,255,255] # Font color. Red, Green, Blue, Alpha. Ranges from 0-255.
+
+[[features]]
+key = "t"
+kind = "text" # Basically the same as split_text, but it takes all remaining arguments. Because of the fact that it takes ALL of the remaining arguments, it should always be placed at the end!
+x = 5
+y = 0
+w = 290
+h = 80
+font_size = 44
+font_color = [255,255,255,255]
