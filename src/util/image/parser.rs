@@ -35,6 +35,11 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 return Err(Error::Other("could not cast OsString to String".to_owned()));
             }
         };
+
+        if name.starts_with("_") {
+            continue;
+        }
+
         let split: Vec<&str> = name.split(".").collect();
         let file_name = split[0];
         let extension: &str = match split.get(1) {

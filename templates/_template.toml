@@ -1,6 +1,6 @@
 # This is just a template file for demonstration purposes
 
-# Step 1: Create a new file named your_file.toml
+# Step 1: Create a new file named your_file.toml (if the file name starts with "_" it will be ignored)
 # Step 2: Copy this file/some parts to your newly created file
 # Step 3: Add in the same folder as your .toml file the base image
 # Supported extensions for images: .jpg .jpeg .png
