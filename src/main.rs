@@ -67,10 +67,11 @@ impl Handler {
 }
 
 impl EventHandler for Handler {
+    //noinspection RsTraitImplementation
     fn guild_create(&self, ctx: Context, _guild: Guild, _b: bool) {
         self.update_activity(&ctx);
     }
-
+    //noinspection RsTraitImplementation
     fn guild_delete(&self, ctx: Context, _incomplete: PartialGuild, _full: Option<Arc<RwLock<Guild>>>) {
         self.update_activity(&ctx);
     }
