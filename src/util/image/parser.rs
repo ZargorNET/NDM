@@ -58,34 +58,10 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
             }
         };
 
-        let mut base_img_file = None;
-
-        'extLoop: for extension in IMAGE_EXTENSIONS.iter() {
-            let base_img_path = Path::new(path.as_os_str()).join(format!("{}{}", file_name, extension));
-            match fs::File::open(base_img_path) {
-                Ok(k) => {
-                    base_img_file = Some(k);
-                    break 'extLoop;
-                }
-                Err(_e) => {
-                    continue 'extLoop;
-                }
-            };
-        }
-
-        if base_img_file.is_none() {
-            warn!("TEMPLATE PARSER: could not find base image to metadata file {}", &file_name);
-            continue;
-        }
-        let mut base_img_file = base_img_file.unwrap();
-
-        let mut base_img_buf = Vec::new();
-        base_img_file.read_to_end(&mut base_img_buf)?;
-
         let mut toml_file_content = String::new();
         toml_file.read_to_string(&mut toml_file_content)?;
-
         let metadata: TemplateMetadataFile = toml::from_str(&toml_file_content)?;
+
         let mut features: Vec<PartialFeature> = Vec::new();
 
         for feat in metadata.features {
@@ -124,7 +100,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                         continue 'tomlLoop; // SKIP THIS TEMPLATE
                     }
                 }
-                _ => {},
+                _ => {}
             }
 
             let dimension = Dimension {
@@ -143,9 +119,43 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 overlay_image_path: feat.overlay_image_path,
             });
         }
+
+
+        let base_img;
+
+        if metadata.empty.is_none() {
+            let mut base_img_file = None;
+            'extLoop: for extension in IMAGE_EXTENSIONS.iter() {
+                let base_img_path = Path::new(path.as_os_str()).join(format!("{}{}", file_name, extension));
+                match fs::File::open(base_img_path) {
+                    Ok(k) => {
+                        base_img_file = Some(k);
+                        break 'extLoop;
+                    }
+                    Err(_e) => {
+                        continue 'extLoop;
+                    }
+                };
+            }
+
+            if base_img_file.is_none() {
+                warn!("TEMPLATE PARSER: could not find base image to metadata file {}", &file_name);
+                continue;
+            }
+            let mut base_img_file = base_img_file.unwrap();
+
+            let mut base_img_buf = Vec::new();
+            base_img_file.read_to_end(&mut base_img_buf)?;
+
+            base_img = image::load_from_memory(&base_img_buf)?;
+        } else {
+            let empty = metadata.empty.unwrap();
+            base_img = image::DynamicImage::ImageRgba8(image::RgbaImage::new(empty.w, empty.h));
+        }
+
         ret.push(PartialTemplate::new(
             metadata.name,
-            image::load_from_memory(&base_img_buf)?,
+            base_img,
             features));
     }
 
@@ -155,7 +165,15 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
 #[derive(Serialize, Deserialize)]
 struct TemplateMetadataFile {
     name: String,
+    #[serde(default)]
+    empty: Option<TemplateFileEmpty>,
     features: Vec<TemplateFileFeature>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct TemplateFileEmpty {
+    w: u32,
+    h: u32,
 }
 
 #[derive(Serialize, Deserialize)]
