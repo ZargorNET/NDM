@@ -17,7 +17,11 @@ pub struct FontSettings {
     pub color: [u8; 4],
 }
 
+#[cfg(debug_assertions)]
 const DEBUG: bool = true;
+#[cfg(not(debug_assertions))]
+const DEBUG: bool = false;
+
 const FONT: &'static [u8] = include_bytes!("Oswald.ttf");
 
 pub fn generate_image_text(dimension: &Dimension, font_settings: &FontSettings, bg: &DynamicImage, text: &str) -> RgbaImage {
