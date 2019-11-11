@@ -16,10 +16,18 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
     }
     let dir = path.read_dir()?;
 
+    let mut ret = Vec::new();
+
     let mut files: Vec<String> = Vec::new();
 
     for entry in dir {
         let entry = entry?;
+
+        if entry.path().is_dir() {
+            ret.append(&mut parse(entry.path().as_path())?);
+            continue;
+        }
+
         let name = entry.file_name();
         let name = match name.into_string() {
             Ok(s) => s,
@@ -39,7 +47,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
         }
     }
 
-    let mut ret = Vec::new();
+
     'tomlLoop: for file_name in files {
         let toml_file_path = Path::new(path.as_os_str()).join(format!("{}.toml", file_name));
         let mut toml_file = match fs::File::open(toml_file_path) {

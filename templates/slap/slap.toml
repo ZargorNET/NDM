@@ -2,7 +2,7 @@ name = "slap"
 
 [[features]]
 key = "slapper"
-kind = "image"
+kind = "user_image"
 x = 500
 y = 100
 w = 300
@@ -10,7 +10,7 @@ h = 300
 
 [[features]]
 key = "slapped"
-kind = "image"
+kind = "user_image"
 x = 850
 y = 350
 w = 300

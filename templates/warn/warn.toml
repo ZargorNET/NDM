@@ -2,7 +2,7 @@ name = "warn"
 
 [[features]]
 key = "dangerous"
-kind = "image"
+kind = "user_image"
 x = 65
 y = 120
 w = 320
