@@ -17,6 +17,7 @@ pub struct PartialFeature {
     pub dimension: Dimension,
     pub font_size: Option<f32>,
     pub font_color: Option<[u8; 4]>,
+    pub overlay_image_path: Option<String>,
 }
 
 impl PartialTemplate {
@@ -38,7 +39,7 @@ impl PartialTemplate {
         }
 
         for f in pfeatures {
-            if f.kind != FeatureType::Text {
+            if f.kind != FeatureType::Text && f.kind != FeatureType::SplitText {
                 return Err(error::Error::WrongType);
             }
 
@@ -64,7 +65,30 @@ impl PartialTemplate {
         Ok(())
     }
 
-    pub fn set_image(&mut self, key: &str, other: DynamicImage) -> Result<(), error::Error> {
+    pub fn set_user_image(&mut self, key: &str, other: DynamicImage) -> Result<(), error::Error> {
+        let pfeatures: Vec<PartialFeature> = self.features.iter().filter(|tp| tp.key == key).cloned().collect();
+        self.features.retain(|f| pfeatures.iter().any(|pf| pf.key != f.key));
+
+        if pfeatures.is_empty() {
+            return Err(error::Error::KeyNotFound);
+        }
+
+        for f in pfeatures {
+            if f.kind != FeatureType::UserImage {
+                return Err(error::Error::WrongType);
+            }
+
+            self.built_features.push(Box::new(super::feature::ImageFeature {
+                dimension: f.dimension.clone(),
+                other: other.clone(),
+            }));
+        }
+
+
+        Ok(())
+    }
+
+    pub fn set_image(&mut self, key: &str) -> Result<(), error::Error> {
         let pfeatures: Vec<PartialFeature> = self.features.iter().filter(|tp| tp.key == key).cloned().collect();
         self.features.retain(|f| pfeatures.iter().any(|pf| pf.key != f.key));
 
@@ -77,9 +101,32 @@ impl PartialTemplate {
                 return Err(error::Error::WrongType);
             }
 
+            let path = match f.overlay_image_path {
+                Some(s) => s,
+                None => {
+                    return Err(error::Error::FeatureAttributeMissing("overlay_image_path"));
+                }
+            };
+
+            let path = std::path::Path::new(&path);
+            if !path.exists() {
+                return Err(error::Error::AttributeError("overlay_image_path", "overlay image not found"));
+            }
+
+            let file_buf = match std::fs::read(path) {
+                Ok(k) => k,
+                Err(e) => return Err(error::Error::IoError("overlay_image_path", e))
+            };
+
+            let img = match image::load_from_memory(&file_buf) {
+                Ok(k) => k,
+                Err(_) => return Err(error::Error::AttributeError("overlay_image_path", "could not load image with library"))
+            };
+
+
             self.built_features.push(Box::new(super::feature::ImageFeature {
                 dimension: f.dimension.clone(),
-                other: other.clone(),
+                other: img,
             }));
         }
 
@@ -121,9 +168,27 @@ mod error {
         KeyNotFound,
         WrongType,
         NotAllFeaturesSatisfied,
+        // Attribute name
+        FeatureAttributeMissing(&'static str),
+
+        // Attribute name, Error msg
+        AttributeError(&'static str, &'static str),
+        // Attribute name, Error
+        IoError(&'static str, std::io::Error),
     }
 
-    impl std::error::Error for Error {}
+    impl std::error::Error for Error {
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            match *self {
+                Self::KeyNotFound => None,
+                Self::WrongType => None,
+                Self::NotAllFeaturesSatisfied => None,
+                Self::FeatureAttributeMissing(_) => None,
+                Self::AttributeError(_, _) => None,
+                Self::IoError(_, ref e) => Some(e)
+            }
+        }
+    }
 
     impl fmt::Display for Error {
         fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -131,6 +196,9 @@ mod error {
                 Self::KeyNotFound => write!(f, "key not found"),
                 Self::WrongType => write!(f, "template types do not match"),
                 Self::NotAllFeaturesSatisfied => write!(f, "not all features were built"),
+                Self::FeatureAttributeMissing(s) => write!(f, "feature attribute missing: {}", s),
+                Self::AttributeError(s, ref e) => write!(f, "feature attribute error: {} => {}", s, e),
+                Self::IoError(s, ref e) => write!(f, "io error while building feature: {} => {}", s, e.to_string()),
             }
         }
     }

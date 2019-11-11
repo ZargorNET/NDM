@@ -53,21 +53,31 @@ fn make_command(args: CommandArguments) -> CommandResult {
             return Ok(true);
         }
     };
-    let feature_count = required_features.len();
 
-    let mut images: Vec<(String, PartialFeature)> = Vec::new();
-    let mut text: Option<(String, PartialFeature)> = None;
+    // SKIP IMAGES
+    let feature_count = required_features.iter().skip_while(|f| f.kind == FeatureType::Image).count();
+
+    let mut text: Option<PartialFeature> = None;
+    let mut images: Vec<PartialFeature> = Vec::new();
+    let mut user_images: Vec<PartialFeature> = Vec::new();
+    let mut split_texts: Vec<PartialFeature> = Vec::new();
 
     for f in required_features {
         match f.kind {
-            FeatureType::Image => {
-                images.push((f.key.clone(), f));
-            }
             FeatureType::Text => {
                 if text.is_some() {
                     warn!("MAKE CMD: Got 2 times or more text features");
                 }
-                text = Some((f.key.clone(), f));
+                text = Some(f);
+            }
+            FeatureType::UserImage => {
+                user_images.push(f);
+            }
+            FeatureType::Image => {
+                images.push(f);
+            }
+            FeatureType::SplitText => {
+                split_texts.push(f);
             }
         };
         //
@@ -75,12 +85,21 @@ fn make_command(args: CommandArguments) -> CommandResult {
 
     if split.len() < 2 + feature_count {
         let mut buf = "".to_owned();
-        for (k, _v) in images {
-            buf.push_str(&format!("<{}:@User> ", k));
+
+        for f in user_images {
+            buf.push_str(&format!("<{}:@User> ", f.key));
+        }
+
+        for f in split_texts {
+            buf.push_str(&format!("<{}:Text>, ", f.key));
         }
 
         if text.is_some() {
-            buf.push_str(&format!("<{}:Text> ", text.unwrap().0));
+            buf.push_str(&format!("<{}:Text> ", text.unwrap().key));
+        }
+
+        if buf.ends_with(", ") {
+            buf.drain((buf.len() - 2)..);
         }
 
         let _ = args.m.channel_id.send_message(args.ctx, |mb| {
@@ -112,7 +131,7 @@ fn make_command(args: CommandArguments) -> CommandResult {
     }
 
     let http = reqwest::Client::new();
-    for (k, _v) in images {
+    for f in user_images {
         let mut avatar;
         {
             let mention = match mentions.get(mention_index) {
@@ -139,20 +158,46 @@ fn make_command(args: CommandArguments) -> CommandResult {
         let mut buf = Vec::new();
         unwrap_cmd_err!(&MAKE_COMMAND, res.read_to_end(&mut buf), "could not read avatar request's body");
         let img = unwrap_cmd_err!(&MAKE_COMMAND, image::load_from_memory(&buf), "could not transform avatar image to DynamicImage struct");
-        unwrap_cmd_err!(&MAKE_COMMAND, tp.set_image(&k, img), "could not set image");
+        unwrap_cmd_err!(&MAKE_COMMAND, tp.set_user_image(&f.key, img), "could not set user image");
 
         args_index += 1;
         mention_index += 1;
     }
 
+    for f in images {
+        unwrap_cmd_err!(&MAKE_COMMAND, tp.set_image(&f.key), "could not set image");
+    }
+
+    {
+        let args_left: String = split[args_index..].to_vec().join(" ");
+        let args_left: Vec<&str> = args_left.split(",").collect();
+        for (i, f) in split_texts.into_iter().enumerate() {
+            let entry = match args_left.get(i) {
+                Some(s) => s.to_string(),
+                None => {
+                    let _ = args.m.reply(args.ctx,
+                                         &format!("Sorry, you've entered some invalid arguments! Please try again or view the help for your command with ``{}``", &make_name));
+                    return Ok(true);
+                }
+            };
+
+            for _ in entry.split_whitespace() {
+                args_index += 1;
+            }
+
+            unwrap_cmd_err!(&MAKE_COMMAND,  tp.set_text(&f.key, entry.to_string()), "could not set split text");
+        }
+    }
+
     if text.is_some() {
         let text = text.unwrap();
 
-        let other = split[args_index..split.len()].to_vec();
+        let other = split[args_index..].to_vec();
         let other: String = other.join(" ");
 
-        unwrap_cmd_err!(&MAKE_COMMAND, tp.set_text(&text.0, other), "could not set text");
+        unwrap_cmd_err!(&MAKE_COMMAND, tp.set_text(&text.key, other), "could not set text");
     }
+
 
     let template: Template = unwrap_cmd_err!(&MAKE_COMMAND, tp.build(), "could not build template");
     let img_buf: Vec<u8> = unwrap_cmd_err!(&MAKE_COMMAND, template.apply(), "could not apply template");

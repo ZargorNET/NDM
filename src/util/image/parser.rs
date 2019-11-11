@@ -40,7 +40,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
     }
 
     let mut ret = Vec::new();
-    for file_name in files {
+    'tomlLoop: for file_name in files {
         let toml_file_path = Path::new(path.as_os_str()).join(format!("{}.toml", file_name));
         let mut toml_file = match fs::File::open(toml_file_path) {
             Ok(k) => k,
@@ -83,11 +83,42 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
         for feat in metadata.features {
             let kind = match feat.kind.as_str() {
                 "text" => FeatureType::Text,
+                "split_text" => FeatureType::SplitText,
                 "image" => FeatureType::Image,
+                "user_image" => FeatureType::UserImage,
                 _ => {
                     return Err(Error::InvalidFeatureType);
                 }
             };
+
+
+            // Check if required attributes exist
+            match kind {
+                FeatureType::Text | FeatureType::SplitText => {
+                    let mut skip = false;
+                    if feat.font_color.is_none() {
+                        warn!(r#"TEMPLATE PARSER: missing attribute "{}" for feature "{}" in template "{}" "#, "font_color", feat.key, &metadata.name);
+                        skip = true;
+                    }
+
+                    if feat.font_size.is_none() {
+                        warn!(r#"TEMPLATE PARSER: missing attribute "{}" for feature "{}" in template "{}" "#, "font_size", feat.key, &metadata.name);
+                        skip = true;
+                    }
+
+                    if skip {
+                        continue 'tomlLoop; // SKIP THIS TEMPLATE
+                    }
+                }
+                FeatureType::Image => {
+                    if feat.overlay_image_path.is_none() {
+                        warn!(r#"TEMPLATE PARSER: missing attribute "{}" for feature "{}" in template "{}" "#, "overlay_image_path", feat.key, &metadata.name);
+                        continue 'tomlLoop; // SKIP THIS TEMPLATE
+                    }
+                }
+                _ => {},
+            }
+
             let dimension = Dimension {
                 x: feat.x,
                 y: feat.y,
@@ -101,6 +132,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 dimension,
                 font_size: feat.font_size,
                 font_color: feat.font_color,
+                overlay_image_path: feat.overlay_image_path,
             });
         }
         ret.push(PartialTemplate::new(
@@ -130,6 +162,8 @@ struct TemplateFileFeature {
     font_size: Option<f32>,
     #[serde(default)]
     font_color: Option<[u8; 4]>,
+    #[serde(default)]
+    overlay_image_path: Option<String>,
 }
 
 #[derive(Debug)]

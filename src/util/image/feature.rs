@@ -38,5 +38,7 @@ impl Feature for ImageFeature {
 #[derive(Clone)]
 pub enum FeatureType {
     Text,
+    SplitText,
     Image,
+    UserImage,
 }
