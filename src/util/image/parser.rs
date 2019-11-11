@@ -8,6 +8,8 @@ use crate::util::image::Dimension;
 use crate::util::image::feature::FeatureType;
 use crate::util::image::partial::{PartialFeature, PartialTemplate};
 
+const IMAGE_EXTENSIONS: [&'static str; 3] = [".jpg", ".jpeg", ".png"];
+
 pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
     if !path.is_dir() {
         return Err(Error::PathNotDir);
@@ -48,14 +50,27 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
             }
         };
 
-        let base_img_path = Path::new(path.as_os_str()).join(format!("{}.jpg", file_name));
-        let mut base_img_file = match fs::File::open(base_img_path) {
-            Ok(k) => k,
-            Err(e) => {
-                warn!("TEMPLATE PARSER: could not find base image to metadata file {}: {}", &file_name, e);
-                continue;
-            }
-        };
+        let mut base_img_file = None;
+
+        'extLoop: for extension in IMAGE_EXTENSIONS.iter() {
+            let base_img_path = Path::new(path.as_os_str()).join(format!("{}{}", file_name, extension));
+            match fs::File::open(base_img_path) {
+                Ok(k) => {
+                    base_img_file = Some(k);
+                    break 'extLoop;
+                }
+                Err(_e) => {
+                    continue 'extLoop;
+                }
+            };
+        }
+
+        if base_img_file.is_none() {
+            warn!("TEMPLATE PARSER: could not find base image to metadata file {}", &file_name);
+            continue;
+        }
+        let mut base_img_file = base_img_file.unwrap();
+
         let mut base_img_buf = Vec::new();
         base_img_file.read_to_end(&mut base_img_buf)?;
 
