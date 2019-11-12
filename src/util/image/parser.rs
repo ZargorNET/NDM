@@ -65,7 +65,13 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
 
         let mut toml_file_content = String::new();
         toml_file.read_to_string(&mut toml_file_content)?;
-        let metadata: TemplateMetadataFile = toml::from_str(&toml_file_content)?;
+        let metadata: TemplateMetadataFile = match toml::from_str(&toml_file_content) {
+            Ok(k) => k,
+            Err(e) => {
+                warn!(r#"TEMPLATE PARSER: template file "{}" could not be parsed! Error: {}"#, &file_name, e);
+                continue 'tomlLoop; // SKIP TEMPLATE
+            }
+        };
 
         let mut features: Vec<PartialFeature> = Vec::new();
 
@@ -208,7 +214,6 @@ pub enum Error {
     PathNotDir,
     InvalidFeatureType,
     IoError(io::Error),
-    TomlError(toml::de::Error),
     ImageError(image::ImageError),
     Other(String),
 }
@@ -219,7 +224,6 @@ impl fmt::Display for Error {
             Self::InvalidFeatureType => write!(f, "feature type/kind is unknown"),
             Self::PathNotDir => write!(f, "path ist not a directory"),
             Self::IoError(ref e) => e.fmt(f),
-            Self::TomlError(ref e) => write!(f, "could not parse metadata file: {}", e),
             Self::ImageError(ref e) => e.fmt(f),
             Self::Other(ref e) => write!(f, "{}", e),
         }
@@ -232,7 +236,6 @@ impl error::Error for Error {
             Self::InvalidFeatureType => None,
             Self::PathNotDir => None,
             Self::IoError(ref e) => Some(e),
-            Self::TomlError(ref e) => Some(e),
             Self::ImageError(ref e) => Some(e),
             Self::Other(_) => None
         }
@@ -242,12 +245,6 @@ impl error::Error for Error {
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
         Error::IoError(e)
-    }
-}
-
-impl From<toml::de::Error> for Error {
-    fn from(e: toml::de::Error) -> Self {
-        Error::TomlError(e)
     }
 }
 
