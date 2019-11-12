@@ -1,23 +1,9 @@
-extern crate base64;
-extern crate chrono;
-extern crate image;
-extern crate imageproc;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate log_panics;
-extern crate rand;
-extern crate regex;
-extern crate rusttype;
 #[macro_use]
 extern crate serde;
-extern crate serde_json;
-extern crate serenity;
-extern crate simplelog;
-extern crate tempfile;
-extern crate time;
-extern crate toml;
 
 use std::fs::File;
 use std::path::Path;
