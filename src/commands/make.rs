@@ -31,6 +31,12 @@ fn make_command(args: CommandArguments) -> CommandResult {
                     buf.push_str(&s);
                     buf.push_str(" | ");
                 }
+
+                if buf.is_empty() {
+                    eb.title("No templates found! Sorry :/");
+                    return eb;
+                }
+
                 let to_print = &buf[0..buf.len() - 3];
 
                 eb.title("Please specify which meme you want to generate");

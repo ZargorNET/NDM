@@ -80,6 +80,12 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 }
             };
 
+            if let Some(f) = features.iter().find(|f| &f.key == &feat.key) {
+                if f.kind != kind {
+                    warn!(r#"TEMPLATE PARSER: template "{}" has at least two features with the same key but with different types!"#, &metadata.name);
+                    continue 'tomlLoop;
+                }
+            }
 
             // Check if required attributes exist
             match kind {
