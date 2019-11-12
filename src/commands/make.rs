@@ -63,10 +63,10 @@ fn make_command(args: CommandArguments) -> CommandResult {
     // SKIP IMAGES
     let feature_count = required_features.iter().filter(|f| f.kind != FeatureType::Image).count();
 
-    let mut text: Option<PartialFeature> = None;
-    let mut images: Vec<PartialFeature> = Vec::new();
     let mut user_images: Vec<PartialFeature> = Vec::new();
+    let mut images: Vec<PartialFeature> = Vec::new();
     let mut split_texts: Vec<PartialFeature> = Vec::new();
+    let mut text: Option<PartialFeature> = None;
 
     for f in required_features {
         match f.kind {
@@ -89,11 +89,18 @@ fn make_command(args: CommandArguments) -> CommandResult {
         //
     }
 
-    if split.len() < 2 + feature_count {
+    let mut feat_count_subtract = 0usize;
+    user_images.iter().filter(|f| f.default_user.unwrap_or_default() == true).for_each(|_| feat_count_subtract += 1);
+
+    if split.len() < 2 + feature_count - feat_count_subtract {
         let mut buf = "".to_owned();
 
         for f in user_images {
-            buf.push_str(&format!("<{}:@User> ", f.key));
+            if f.default_user.unwrap_or_default() == true {
+                buf.push_str(&format!("[<{}:@User>] ", f.key));
+            } else {
+                buf.push_str(&format!("<{}:@User> ", f.key));
+            }
         }
 
         for f in split_texts {
@@ -123,51 +130,66 @@ fn make_command(args: CommandArguments) -> CommandResult {
     let mut tp = args.image.start_building(&make_name).unwrap();
 
     let mut args_index = 2usize;
-    let mut mention_index = 0usize;
 
-    let mentioned_user_ids = super::util::parse_mentions(&args.m.content);
-    let mut mentions: Vec<Arc<RwLock<User>>> = Vec::with_capacity(mentioned_user_ids.len());
-    for id in mentioned_user_ids {
-        let l = args.ctx.cache.read();
-        let user = match l.user(id.parse::<u64>().unwrap()) {
-            Some(s) => s,
-            None => continue
-        };
-        mentions.push(user);
-    }
-
-    let http = reqwest::Client::new();
-    for f in user_images {
-        let mut avatar;
-        {
-            let mention = match mentions.get(mention_index) {
+    {
+        let mut mention_index = 0usize;
+        let mentioned_user_ids = super::util::parse_mentions(&args.m.content);
+        let mut mentions: Vec<Arc<RwLock<User>>> = Vec::with_capacity(mentioned_user_ids.len());
+        for id in mentioned_user_ids {
+            let l = args.ctx.cache.read();
+            let user = match l.user(id.parse::<u64>().unwrap()) {
                 Some(s) => s,
-                None => {
-                    let _ = args.m.reply(args.ctx, "Sorry, you've entered an invalid target user! Please try again");
-                    return Ok(true);
-                }
+                None => continue
             };
-            let mention = mention.read();
-            avatar = match mention.avatar_url() {
-                Some(s) => s,
-                None => {
-                    let _ = args.m.reply(args.ctx, "Sorry, at least one of your target users doesn't have a custom avatar");
-                    return Ok(true);
-                }
-            };
-        } // RELEASE LOCK
-        avatar = avatar.replace(".webp?size=1024", ".png?size=512"); // IMAGE LIB DOES NOT FULLY SUPPORT .WEBP
+            mentions.push(user);
+        }
 
-        let url = unwrap_cmd_err!(&MAKE_COMMAND, reqwest::Url::parse(&avatar), "could not build avatar url");
-        let req = unwrap_cmd_err!(&MAKE_COMMAND, http.get(url).build(), "could not build avatar command");
-        let mut res: Response = unwrap_cmd_err!(&MAKE_COMMAND, http.execute(req), "could not execute avatar request");
-        let mut buf = Vec::new();
-        unwrap_cmd_err!(&MAKE_COMMAND, res.read_to_end(&mut buf), "could not read avatar request's body");
-        let img = unwrap_cmd_err!(&MAKE_COMMAND, image::load_from_memory(&buf), "could not transform avatar image to DynamicImage struct");
-        unwrap_cmd_err!(&MAKE_COMMAND, tp.set_user_image(&f.key, img), "could not set user image");
+        let http = reqwest::Client::new();
+        for f in user_images {
+            let mut avatar;
+            let mut defaulted = false;
+            if f.default_user.unwrap_or_default() == true && mentions[mention_index..].len() - 1 == 0 {
+                avatar = match args.m.author.avatar_url() {
+                    Some(s) => s,
+                    None => {
+                        let _ = args.m.reply(args.ctx, "Sorry, you need to have a avatar in order to generate this image!");
+                        return Ok(true);
+                    }
+                };
+                defaulted = true;
+            } else {
+                let mention = match mentions.get(mention_index) {
+                    Some(s) => s,
+                    None => {
+                        let _ = args.m.reply(args.ctx, "Sorry, you've entered an invalid target user! Please try again");
+                        return Ok(true);
+                    }
+                };
+                let mention = mention.read();
+                avatar = match mention.avatar_url() {
+                    Some(s) => s,
+                    None => {
+                        let _ = args.m.reply(args.ctx, "Sorry, at least one of your target users doesn't have a custom avatar");
+                        return Ok(true);
+                    }
+                };
+            } // RELEASE LOCK
 
-        args_index += 1;
-        mention_index += 1;
+            avatar = avatar.replace(".webp?size=1024", ".png?size=512"); // IMAGE LIB DOES NOT FULLY SUPPORT .WEBP
+
+            let url = unwrap_cmd_err!(&MAKE_COMMAND, reqwest::Url::parse(&avatar), "could not build avatar url");
+            let req = unwrap_cmd_err!(&MAKE_COMMAND, http.get(url).build(), "could not build avatar command");
+            let mut res: Response = unwrap_cmd_err!(&MAKE_COMMAND, http.execute(req), "could not execute avatar request");
+            let mut buf = Vec::new();
+            unwrap_cmd_err!(&MAKE_COMMAND, res.read_to_end(&mut buf), "could not read avatar request's body");
+            let img = unwrap_cmd_err!(&MAKE_COMMAND, image::load_from_memory(&buf), "could not transform avatar image to DynamicImage struct");
+            unwrap_cmd_err!(&MAKE_COMMAND, tp.set_user_image(&f.key, img), "could not set user image");
+
+            if !defaulted {
+                args_index += 1;
+                mention_index += 1;
+            }
+        }
     }
 
     for f in images {

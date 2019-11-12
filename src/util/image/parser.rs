@@ -110,14 +110,21 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                     if skip {
                         continue 'tomlLoop; // SKIP THIS TEMPLATE
                     }
-                }
+                },
                 FeatureType::Image => {
                     if feat.overlay_image_path.is_none() {
                         warn!(r#"TEMPLATE PARSER: missing attribute "{}" for feature "{}" in template "{}" "#, "overlay_image_path", feat.key, &metadata.name);
                         continue 'tomlLoop; // SKIP THIS TEMPLATE
                     }
+                },
+                FeatureType::UserImage => {
+                    if feat.default_user.unwrap_or_default() == true {
+                        if features.iter().any(|a| a.kind == FeatureType::UserImage) {
+                            warn!(r#"TEMPLATE PARSER: user_image feature "{}" in template "{}" with attribute default_user = true must be the first feature (of it's kind)!"#, feat.key, &metadata.name);
+                            continue 'tomlLoop; // SKIP THIS TEMPLATE
+                        }
+                    }
                 }
-                _ => {}
             }
 
             let dimension = Dimension {
@@ -134,6 +141,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 font_size: feat.font_size,
                 font_color: feat.font_color,
                 overlay_image_path: feat.overlay_image_path,
+                default_user: feat.default_user,
             });
         }
 
@@ -207,6 +215,8 @@ struct TemplateFileFeature {
     font_color: Option<[u8; 4]>,
     #[serde(default)]
     overlay_image_path: Option<String>,
+    #[serde(default)]
+    default_user: Option<bool>,
 }
 
 #[derive(Debug)]

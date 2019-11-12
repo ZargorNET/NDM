@@ -18,6 +18,7 @@ pub struct PartialFeature {
     pub font_size: Option<f32>,
     pub font_color: Option<[u8; 4]>,
     pub overlay_image_path: Option<String>,
+    pub default_user: Option<bool>,
 }
 
 impl PartialTemplate {
