@@ -6,7 +6,7 @@ use crate::command_framework::{Command, CommandArguments, CommandResult};
 pub static URBAN_COMMAND: Command = Command {
     key: "urban",
     description: "Searches a term on UrbanDictionary",
-    help_page: "#urban <term>",
+    help_page: "<term>",
     category: "Fun",
     func: urban_command,
 };

@@ -6,7 +6,7 @@ use crate::commands;
 pub static FOX_COMMAND: Command = Command {
     key: "fox",
     description: "Gives you random fox",
-    help_page: "#fox",
+    help_page: "",
     category: "Animals",
     func: fox_command,
 };

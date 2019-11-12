@@ -14,7 +14,7 @@ use crate::util::image::Template;
 pub static MAKE_COMMAND: Command = Command {
     key: "make",
     description: "Make a meme",
-    help_page: "#make",
+    help_page: "",
     category: "Fun",
     func: make_command,
 };

@@ -9,7 +9,7 @@ pub const RABBIT_CACHE_KEY: &'static str = "rabbitcache";
 pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
     description: "Gets you an hoppyboi",
-    help_page: "#rabbit",
+    help_page: "",
     category: "Animals",
     func: rabbit_command,
 };

@@ -8,7 +8,7 @@ use crate::command_framework::{Command, CommandArguments, CommandResult};
 pub static URBANMUG_COMMAND: Command = Command {
     key: "urbanmug",
     description: "Gets a nice mug",
-    help_page: "#urban <text>",
+    help_page: "<text>",
     category: "Fun",
     func: mug_command,
 };

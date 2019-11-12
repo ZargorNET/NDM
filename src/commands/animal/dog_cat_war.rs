@@ -6,7 +6,7 @@ use crate::commands;
 pub static DOG_CAT_WAR_COMMAND: Command = Command {
     key: "dcwar",
     description: "The epic war between dogs and cats",
-    help_page: "#dcwar",
+    help_page: "",
     category: "Animals",
     func: dog_war_command,
 };

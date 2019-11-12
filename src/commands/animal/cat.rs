@@ -7,7 +7,7 @@ use crate::commands;
 pub static CAT_COMMAND: Command = Command {
     key: "cat",
     description: "Gives you a random cat",
-    help_page: "#cat",
+    help_page: "",
     category: "Animals",
     func: cat_command,
 };
@@ -25,7 +25,7 @@ const CAT_SLOGANS: &'static [&'static str] = &[
 
 
 fn cat_command(args: CommandArguments) -> CommandResult {
-    let mut res = unwrap_cmd_err!(&CAT_COMMAND, reqwest::get("htta://aws.random.cat/meow"), "could not connect to cat service");
+    let mut res = unwrap_cmd_err!(&CAT_COMMAND, reqwest::get("https://aws.random.cat/meow"), "could not connect to cat service");
 
 
     let text = unwrap_cmd_err!(&CAT_COMMAND, res.text(), "could not read cat service's body");

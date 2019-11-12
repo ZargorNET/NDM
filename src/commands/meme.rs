@@ -7,7 +7,7 @@ use crate::commands;
 pub static MEME_COMMAND: Command = Command {
     key: "meme",
     description: "Gets a random meme",
-    help_page: "#meme",
+    help_page: "",
     category: "Fun",
     func: meme_command,
 };
@@ -18,7 +18,7 @@ pub struct Meme {
     pub image: String,
     pub author: String,
     pub subreddit: String,
-    pub upvotes: i32,
+    pub upvotes: u32,
 }
 
 pub const MEME_CACHE_KEY: &'static str = "memecache";

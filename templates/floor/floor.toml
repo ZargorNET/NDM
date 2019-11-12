@@ -3,6 +3,7 @@ name = "floor"
 [[features]]
 key = "target"
 kind = "user_image"
+default_user = true
 x = 90
 y = 80
 w = 80

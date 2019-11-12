@@ -9,7 +9,7 @@ pub const AWW_CACHE_KEY: &'static str = "awwcache";
 pub static AWW_COMMAND: Command = Command {
     key: "aww",
     description: "r/aww",
-    help_page: "#aww",
+    help_page: "",
     category: "Animals",
     func: aww_command,
 };
@@ -31,14 +31,14 @@ fn aww_command(args: CommandArguments) -> CommandResult {
 
     let _ = args.m.channel_id.send_message(args.ctx, |mb| {
         mb.embed(|mut eb| {
-            eb.title("Awwwwwwww <3");
+            eb.title(format!("Awwwww <3 by u/{}", aww.author));
             eb.description(aww.title);
             eb.image(aww.url);
             eb.url(format!("https://reddit.com{}", aww.permalink));
             eb.color(Colour::new(0x947867));
 
-            commands::util::add_timestamp(&mut eb);
-            commands::util::add_footer(&mut eb, &args);
+            //commands::util::add_timestamp(&mut eb);
+            commands::util::add_footer_text(&mut eb, &args, format!("👍 {} | 💬 {}", aww.like_ammount, aww.comments_ammount));
 
             eb
         })
@@ -52,4 +52,6 @@ pub struct Aww {
     pub permalink: String,
     pub title: String,
     pub author: String,
+    pub like_ammount: u32,
+    pub comments_ammount: u32
 }

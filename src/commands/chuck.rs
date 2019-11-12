@@ -6,7 +6,7 @@ use crate::commands;
 pub static CHUCK_COMMAND: Command = Command {
     key: "chuck",
     description: "Gets you a random chuck norris joke",
-    help_page: "#chuck [<optional:Name>]",
+    help_page: "[<optional:Name>]",
     category: "Fun",
     func: chuck_command,
 };

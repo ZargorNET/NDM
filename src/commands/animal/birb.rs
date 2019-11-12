@@ -7,7 +7,7 @@ use crate::commands;
 pub static BIRB_COMMAND: Command = Command {
     key: "birb",
     description: "Gets a random birb",
-    help_page: "#birb",
+    help_page: "",
     category: "Animals",
     func: birb_command,
 };

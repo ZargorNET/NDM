@@ -25,6 +25,8 @@ mod command_framework;
 mod commands;
 mod schedules;
 
+pub const DEFAULT_PREFIX: &'static str = "+";
+
 struct Handler {
     ch: Arc<RwLock<CommandManager>>,
     scheduler: Arc<RwLock<Scheduler>>,
@@ -48,7 +50,7 @@ impl Handler {
 
 impl Handler {
     fn update_activity(&self, ctx: &Context) {
-        ctx.set_activity(Activity::playing(&format!("#help | {} guilds", ctx.cache.read().all_guilds().len())));
+        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), DEFAULT_PREFIX)));
     }
 }
 
@@ -67,7 +69,8 @@ impl EventHandler for Handler {
         if msg.author.bot {
             return;
         }
-        if !msg.content.starts_with("#") {
+        //TODO: Server config prefix
+        if !msg.content.starts_with(DEFAULT_PREFIX) {
             return;
         }
 
@@ -82,10 +85,7 @@ impl EventHandler for Handler {
             let command_manager = command_manager_arc.read();
             match command_manager.get_command(msg_split[0]) {
                 Some(c) => cmd = c.clone(),
-                None => {
-                    let _ = msg.reply(&ctx, "Command not found!");
-                    return;
-                }
+                None => return
             }
         } // DROP READ LOCK
         {
@@ -102,7 +102,7 @@ impl EventHandler for Handler {
                     } else {
                         let _ = msg.react(&ctx, ReactionType::from("❌"));
                         let _ = msg.channel_id.send_message(&ctx, |eb| {
-                            eb.content(format!("Invalid syntax! Try: ``{}``", cmd.help_page));
+                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", DEFAULT_PREFIX, cmd.key, cmd.help_page));
                             eb
                         });
                     }
