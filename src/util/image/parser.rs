@@ -142,6 +142,7 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 font_color: feat.font_color,
                 overlay_image_path: feat.overlay_image_path,
                 default_user: feat.default_user,
+                grayscale: feat.grayscale,
             });
         }
 
@@ -217,6 +218,8 @@ struct TemplateFileFeature {
     overlay_image_path: Option<String>,
     #[serde(default)]
     default_user: Option<bool>,
+    #[serde(default)]
+    grayscale: Option<bool>,
 }
 
 #[derive(Debug)]

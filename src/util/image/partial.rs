@@ -19,6 +19,7 @@ pub struct PartialFeature {
     pub font_color: Option<[u8; 4]>,
     pub overlay_image_path: Option<String>,
     pub default_user: Option<bool>,
+    pub grayscale: Option<bool>,
 }
 
 impl PartialTemplate {
@@ -79,9 +80,16 @@ impl PartialTemplate {
                 return Err(error::Error::WrongType);
             }
 
+            let img: DynamicImage;
+            if f.grayscale.unwrap_or_default() == true {
+                img = other.grayscale();
+            } else {
+                img = other.clone();
+            }
+
             self.built_features.push(Box::new(super::feature::ImageFeature {
                 dimension: f.dimension.clone(),
-                other: other.clone(),
+                other: img,
             }));
         }
 
@@ -119,11 +127,14 @@ impl PartialTemplate {
                 Err(e) => return Err(error::Error::IoError("overlay_image_path", e))
             };
 
-            let img = match image::load_from_memory(&file_buf) {
+            let mut img = match image::load_from_memory(&file_buf) {
                 Ok(k) => k,
                 Err(_) => return Err(error::Error::AttributeError("overlay_image_path", "could not load image with library"))
             };
 
+            if f.grayscale.unwrap_or_default() == true {
+                img = img.grayscale();
+            }
 
             self.built_features.push(Box::new(super::feature::ImageFeature {
                 dimension: f.dimension.clone(),

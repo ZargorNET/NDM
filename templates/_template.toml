@@ -21,11 +21,12 @@ h = 300 # Height of the base image
 [[features]]
 key = "key" # The key should be unique. If not, it will share one to-fulfill argument with it's evenly-named partner.
 kind = "user_image" # An user image. The user has to specify the @User#1234 in his arguments
-default_user = true # This is optional and defaults top "false". If true, user don't have to specify this @User; it will default to the author's image. Attention: If using, this feature needs to be the first!
+default_user = true # This is optional and defaults to "false". If true, user don't have to specify this @User; it will default to the author's image. Attention: If using, this feature needs to be the first!
 x = 0 # The x coordinate of the upper left corner of the bounding box
 y = 0 # The y coordinate of the upper left corner of the bounding box
 w = 300 # The bounding box width
 h = 300 # The bounding box height
+grayscale = true # This is optional and defaults to "false". If true, this image will be grayed. Works on every image feature
 
 [[features]]
 key = "jailbars"
@@ -35,6 +36,7 @@ y = 0
 w = 300
 h = 300
 overlay_image_path = "./templates/jail/jailbars.png" # The image that will be rendered on the given position. Relative to the executing file.
+grayscale = true
 
 [[features]]
 key = "t"
