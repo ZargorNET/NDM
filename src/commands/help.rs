@@ -1,7 +1,6 @@
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::DEFAULT_PREFIX;
 
 pub static HELP_COMMAND: Command = Command {
     key: "help",
@@ -22,9 +21,9 @@ fn help_command(args: CommandArguments) -> CommandResult {
             for cmd in cmds.into_iter() {
                 if cmd.key == "help" { continue; }
                 if cmd.help_page == "" {
-                    s.push_str(&format!("``{}{}`` => {}\n", DEFAULT_PREFIX, cmd.key, cmd.description));
+                    s.push_str(&format!("``{}{}`` => {}\n", args.settings.read().default_prefix, cmd.key, cmd.description));
                 } else {
-                    s.push_str(&format!("``{}{} {}`` => {}\n", DEFAULT_PREFIX, cmd.key, cmd.help_page, cmd.description));
+                    s.push_str(&format!("``{}{} {}`` => {}\n", args.settings.read().default_prefix, cmd.key, cmd.help_page, cmd.description));
                 }
             }
             eb.description(s);

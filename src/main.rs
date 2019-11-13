@@ -9,6 +9,7 @@ use std::fs::File;
 use std::path::Path;
 use std::sync::Arc;
 
+use chrono::{DateTime, Utc};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
@@ -25,13 +26,19 @@ mod command_framework;
 mod commands;
 mod schedules;
 
-pub const DEFAULT_PREFIX: &'static str = "+";
+pub const SERENITY_CACHE_SAFE_KEY: &'static str = "SERENITY_CACHE";
+
+pub struct StaticSettings {
+    default_prefix: String,
+    start_time: DateTime<Utc>,
+}
 
 struct Handler {
     ch: Arc<RwLock<CommandManager>>,
     scheduler: Arc<RwLock<Scheduler>>,
     safe: Arc<RwLock<Safe>>,
     image: Arc<util::image::ImageStorage>,
+    settings: Arc<RwLock<StaticSettings>>,
 }
 
 impl Handler {
@@ -39,18 +46,24 @@ impl Handler {
         let ch = Arc::new(RwLock::new(ch));
         let safe = Arc::new(RwLock::new(Safe::new()));
         let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe));
+        let settings = Arc::new(RwLock::new(StaticSettings {
+            default_prefix: "+".to_string(),
+            start_time: Utc::now(),
+        }));
+
         Handler {
             ch,
             scheduler,
             safe,
             image,
+            settings,
         }
     }
 }
 
 impl Handler {
     fn update_activity(&self, ctx: &Context) {
-        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), DEFAULT_PREFIX)));
+        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), self.settings.read().default_prefix)));
     }
 }
 
@@ -70,7 +83,7 @@ impl EventHandler for Handler {
             return;
         }
         //TODO: Server config prefix
-        if !msg.content.starts_with(DEFAULT_PREFIX) {
+        if !msg.content.starts_with(&self.settings.read().default_prefix) {
             return;
         }
 
@@ -94,7 +107,8 @@ impl EventHandler for Handler {
                                              Arc::clone(&self.ch),
                                              Arc::clone(&self.scheduler),
                                              Arc::clone(&self.safe),
-                                             Arc::clone(&self.image));
+                                             Arc::clone(&self.image),
+                                             Arc::clone(&self.settings));
             match (cmd.func)(args) {
                 Ok(print_usage) => {
                     if print_usage {
@@ -102,7 +116,7 @@ impl EventHandler for Handler {
                     } else {
                         let _ = msg.react(&ctx, ReactionType::from("❌"));
                         let _ = msg.channel_id.send_message(&ctx, |eb| {
-                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", DEFAULT_PREFIX, cmd.key, cmd.help_page));
+                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", self.settings.read().default_prefix, cmd.key, cmd.help_page));
                             eb
                         });
                     }
@@ -118,14 +132,18 @@ impl EventHandler for Handler {
 
 
     fn ready(&self, ctx: Context, _red: Ready) {
+        { self.safe.write().store(SERENITY_CACHE_SAFE_KEY, Arc::clone(&ctx.cache)); }
+
         let scheduler = Arc::clone(&self.scheduler);
         let mut scheduler = scheduler.write();
         scheduler.clear_all();
+        scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
         scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
         scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
+
         self.update_activity(&ctx);
         info!("Bot started!");
     }

@@ -5,9 +5,9 @@ use std::sync::Arc;
 use serenity::model::prelude::Message;
 use serenity::prelude::{Context, RwLock};
 
+use crate::{StaticSettings, util};
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
-use crate::util;
 
 pub struct CommandManager {
     commands: Vec<&'static Command>
@@ -29,6 +29,7 @@ pub struct CommandArguments<'a> {
     pub scheduler: Arc<RwLock<Scheduler>>,
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
+    pub settings: Arc<RwLock<StaticSettings>>,
 }
 
 #[derive(Clone)]
@@ -80,7 +81,7 @@ impl CommandManager {
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<RwLock<StaticSettings>>) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
@@ -88,6 +89,7 @@ impl<'a> CommandArguments<'a> {
             scheduler,
             safe,
             image,
+            settings,
         }
     }
 }
