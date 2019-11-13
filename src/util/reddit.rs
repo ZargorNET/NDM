@@ -17,7 +17,7 @@ pub struct RedditResponse {
 #[derive(Serialize, Deserialize)]
 pub struct RedditResponseData {
     pub children: Vec<RedditResponseChildren>,
-    pub after: String
+    pub after: Option<String>
 }
 
 #[derive(Serialize, Deserialize)]

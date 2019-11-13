@@ -15,12 +15,12 @@ pub static DOG_COMMAND: Command = Command {
 pub static DOG_BREEDS_COMMAND: Command = Command {
     key: "dogbreeds",
     description: "Shows you all available breeds",
-    help_page: "#dogbreeds",
+    help_page: "",
     category: "Animals",
     func: dog_breed_command,
 };
 
-const DOG_SLOGANS: &'static [&'static str] = &[
+/*const DOG_SLOGANS: &'static [&'static str] = &[
     "WHO LET THE DOGS OUT? WOOF WOOF",
     "MEOW I'M JUST A CAT",
     "Happiness is a warm puppy :)",
@@ -32,7 +32,7 @@ const DOG_SLOGANS: &'static [&'static str] = &[
     "i luv you. woof",
     "where is my hoooman?",
     "i want pettttssssss"
-];
+];*/
 
 pub const DOG_CACHE_KEY: &'static str = "dogcache";
 
@@ -87,11 +87,11 @@ fn dog_command(args: CommandArguments) -> CommandResult {
     }
     let _ = args.m.channel_id.send_message(args.ctx, |cb| {
         cb.embed(|mut eb| {
-            eb.title("GIVE ME DA WOOF!");
-            let mut ran = rand::thread_rng();
-            let index = ran.gen_range(0, DOG_SLOGANS.len());
-            eb.description(DOG_SLOGANS[index]);
-            eb.field("DOGS VS CATS", "Registered vote for DOGS! ``#dcwar``", true);
+            eb.title("Woofy boy!");
+            //let mut ran = rand::thread_rng();
+            //let index = ran.gen_range(0, DOG_SLOGANS.len());
+            //eb.description(DOG_SLOGANS[index]);
+            //eb.field("DOGS VS CATS", "Registered vote for DOGS! ``#dcwar``", true);
             eb.image(dog_url);
 
             commands::util::add_footer(&mut eb, &args);
@@ -103,7 +103,7 @@ fn dog_command(args: CommandArguments) -> CommandResult {
         cb
     });
 
-    super::add_dog_sup(&args);
+    //super::add_dog_sup(&args);
 
     Ok(true)
 }

@@ -15,8 +15,6 @@ pub fn fetch_aww(args: ScheduleArguments) {
             }
         };
 
-        after = reddit_res.data.after;
-
         for res in reddit_res.data.children {
             if res.data.post_hint != "image" {
                 continue;
@@ -32,8 +30,16 @@ pub fn fetch_aww(args: ScheduleArguments) {
             });
         }
 
-        ret.shrink_to_fit();
+        if let Some(result) = match reddit_res.data.after {
+            Some(after) => Some(after),
+            None => None
+        } {
+            after = result;
+        } else {
+            break
+        }
     }
+    ret.shrink_to_fit();
     info!("AWW SCHEDULER: Fetched {} awws", ret.len());
     let mut safe = args.safe.write();
     safe.store(commands::animal::aww::AWW_CACHE_KEY, ret);

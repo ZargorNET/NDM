@@ -82,6 +82,8 @@ impl EventHandler for Handler {
         if msg.author.bot {
             return;
         }
+
+        info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
         //TODO: Server config prefix
         if !msg.content.starts_with(&self.settings.read().default_prefix) {
             return;
@@ -92,7 +94,6 @@ impl EventHandler for Handler {
         let msg_split: Vec<&str> = msg.content.split_whitespace().collect();
 
         let cmd;
-
         {
             let command_manager_arc = Arc::clone(&self.ch);
             let command_manager = command_manager_arc.read();
@@ -173,7 +174,7 @@ fn main() {
         command_handler.register_command(&commands::animal::cat::CAT_COMMAND);
         command_handler.register_command(&commands::animal::dog::DOG_COMMAND);
         command_handler.register_command(&commands::animal::dog::DOG_BREEDS_COMMAND);
-        command_handler.register_command(&commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND);
+        //command_handler.register_command(&commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND);
         command_handler.register_command(&commands::meme::MEME_COMMAND);
         command_handler.register_command(&commands::about::ABOUT_COMMAND);
         command_handler.register_command(&commands::urban::URBAN_COMMAND);

@@ -30,7 +30,7 @@ impl Safe {
             }
         }
     }
-
+    #[allow(dead_code)]
     pub fn get_mut<T>(&mut self, s: &str) -> Option<&mut Box<T>> where T: Any + Send + Sync {
         let val = self.safe.get_mut(s);
         match val {
@@ -45,6 +45,7 @@ impl Safe {
         }
     }
 
+    #[allow(dead_code)]
     pub fn exists(&self, s: &str) -> bool {
         self.safe.contains_key(s)
     }
