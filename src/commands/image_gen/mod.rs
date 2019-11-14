@@ -4,8 +4,8 @@ use reqwest::Response;
 use serenity::http::AttachmentType;
 
 use crate::command_framework::{CommandArguments, CommandResult};
+use crate::util::image::{ImageStorage, Template};
 use crate::util::image::feature::FeatureType;
-use crate::util::image::Template;
 
 pub mod command_gen;
 
@@ -42,17 +42,26 @@ fn image_gen(args: CommandArguments) -> CommandResult {
                 unwrap_cmd_err!(args.command, template.set_text(&feature.key, t), "could not set split text");
             }
             FeatureType::UserImage => {
-                let next = match split.clone().next() {
-                    Some(s) => s,
-                    None => return Ok(false)
-                };
-
-
                 let user = if i == 0 && feature.default_user.unwrap_or_default() == true && mentions.len() != user_images_count {
                     args.m.author.clone()
                 } else {
                     // OK PARSE NEXT MENTION
-                    let _ = split.by_ref().next();
+                    let next = match split.by_ref().next() {
+                        Some(s) => s,
+                        None => {
+                            let _ = args.m.channel_id.send_message(args.ctx, |mb| {
+                                mb.embed(|mut eb| {
+                                    eb.title(format!(r#"Meme Maker: "{}""#, key));
+                                    eb.description(format!("Please specify following parameters: \n``#{} {}``", key, print_template_features(&args.image, key)));
+
+                                    super::util::add_timestamp(&mut eb);
+                                    super::util::add_footer(&mut eb, &args);
+                                    eb
+                                })
+                            });
+                            return Ok(true);
+                        }
+                    };
 
                     let mention = match super::util::parse_mentions(next).get(0) {
                         Some(s) => s.clone(),
@@ -89,7 +98,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
             FeatureType::Text => {
                 let mut t = String::new();
 
-                for mut next in split.by_ref() {
+                for next in split.by_ref() {
                     t.push_str(next);
                     t.push_str(" ");
                 }
@@ -113,4 +122,34 @@ fn image_gen(args: CommandArguments) -> CommandResult {
     });
 
     Ok(true)
+}
+
+fn print_template_features(images: &ImageStorage, template_key: &str) -> String {
+    let mut buf = "".to_owned();
+
+    let req_features = images.get_required_features(template_key).unwrap();
+    for f in req_features {
+        match f.kind {
+            FeatureType::UserImage => {
+                if f.default_user.unwrap_or_default() == true {
+                    buf.push_str(&format!("[<{}:@User>] ", f.key));
+                } else {
+                    buf.push_str(&format!("<{}:@User> ", f.key));
+                }
+            },
+            FeatureType::SplitText => {
+                buf.push_str(&format!("<{}:Text>, ", f.key));
+            },
+            FeatureType::Text => {
+                buf.push_str(&format!("<{}:Text> ", f.key));
+            },
+            FeatureType::Image => {}
+        }
+    }
+
+    if buf.ends_with(", ") {
+        buf.drain((buf.len() - 2)..);
+    }
+
+    buf
 }
