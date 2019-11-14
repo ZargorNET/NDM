@@ -144,7 +144,7 @@ impl EventHandler for Handler {
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
         scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
-
+        scheduler.schedule_repeated(1 * 60 * 60, schedules::update_topgg); // EVERY 1 HOUR
         self.update_activity(&ctx);
         info!("Bot started!");
     }
@@ -199,5 +199,5 @@ fn main() {
     let mut client = Client::new(&discord_token, Handler::new(command_handler,
                                                               Arc::new(util::image::ImageStorage::load(templates_path).expect("could not create image storage")),
     )).expect("Could not create Client");
-    client.start().expect("Could not start discord client");
+    client.start_autosharded().expect("Could not start discord client");
 }
