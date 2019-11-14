@@ -102,7 +102,7 @@ pub fn generate_image_text(dimension: &Dimension, font_settings: &FontSettings, 
 pub fn generate_image_image(dimension: &Dimension, bg: &DynamicImage, other: &DynamicImage) -> RgbaImage {
     let mut img = RgbaImage::new(bg.width(), bg.height());
     copy_image(bg, &mut img);
-    let other = other.resize(dimension.w, dimension.h, FilterType::Triangle);
+    let other = other.resize(dimension.w, dimension.h, FilterType::Nearest);
     copy_image_with_offset(&other, &mut img, dimension.x, dimension.y, dimension.w, dimension.h);
     if DEBUG {
         draw_hollow_rect_mut(&mut img, Rect::at(dimension.x as i32, dimension.y as i32).of_size(dimension.w, dimension.h), Rgba([0, 255, 0, 255]));
