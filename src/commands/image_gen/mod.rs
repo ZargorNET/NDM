@@ -54,9 +54,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
                     None => return Ok(false)
                 };
 
-                /*     let is_mention = super::util::parse_mentions(next).get(0).is_some();*/
 
-                println!("{:#?}", &feature);
                 let user = if i == 0 && feature.default_user.unwrap_or_default() == true && mentions.len() != user_images_count {
                     args.m.author.clone()
                 } else {
