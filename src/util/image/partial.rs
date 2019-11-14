@@ -10,7 +10,7 @@ pub struct PartialTemplate {
     pub(super) built_features: Vec<Box<dyn super::feature::Feature + Send + Sync>>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PartialFeature {
     pub key: String,
     pub kind: FeatureType,

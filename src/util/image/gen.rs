@@ -3,7 +3,7 @@ use imageproc::drawing::{draw_hollow_rect_mut, draw_text_mut};
 use imageproc::rect::Rect;
 use rusttype::{FontCollection, Scale};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Dimension {
     pub x: u32,
     pub y: u32,

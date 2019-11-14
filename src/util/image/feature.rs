@@ -35,7 +35,7 @@ impl Feature for ImageFeature {
 }
 
 #[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum FeatureType {
     Text,
     SplitText,

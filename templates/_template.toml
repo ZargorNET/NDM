@@ -15,7 +15,7 @@ w = 300 # Width of the base image
 h = 300 # Height of the base image
 
 # Now to the features: A feature is a part of an image which are required to be fulfilled when generating/building the image (exception "image" because you have to specify this argument here).
-# The features will be processed in the following order: user_images, images, split_texts, text (between the same type/kind, they'll be executed in the order stated in this file)
+# The features will be processed in specified order here.
 # For every currently supported feature, you'll find an entry here.
 
 [[features]]

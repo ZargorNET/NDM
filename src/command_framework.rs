@@ -8,9 +8,10 @@ use serenity::prelude::{Context, RwLock};
 use crate::{StaticSettings, util};
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
+use crate::util;
 
 pub struct CommandManager {
-    commands: Vec<&'static Command>
+    commands: Vec<Command>
 }
 
 
@@ -30,6 +31,7 @@ pub struct CommandArguments<'a> {
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
     pub settings: Arc<RwLock<StaticSettings>>,
+    pub command: &'a Command,
 }
 
 #[derive(Clone)]
@@ -44,7 +46,7 @@ pub struct Command {
 
 #[derive(Debug, Clone)]
 pub struct CommandError {
-    pub  cmd: &'static Command,
+    pub  cmd: Command,
     pub  err: String,
 }
 
@@ -71,17 +73,17 @@ impl CommandManager {
         }
     }
 
-    pub fn register_command(&mut self, cmd: &'static Command) {
+    pub fn register_command(&mut self, cmd: Command) {
         self.commands.push(cmd);
     }
 
-    pub fn get_all_commands(&self) -> &Vec<&'static Command> {
+    pub fn get_all_commands(&self) -> &Vec<Command> {
         &self.commands
     }
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<RwLock<StaticSettings>>) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<RwLock<StaticSettings>>, command: &'a Command) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
@@ -90,21 +92,22 @@ impl<'a> CommandArguments<'a> {
             safe,
             image,
             settings,
+            command
         }
     }
 }
 
 #[allow(dead_code)]
 impl CommandError {
-    pub fn new_str(cmd: &'static Command, err: &str) -> CommandError {
+    pub fn new_str(cmd: &Command, err: &str) -> CommandError {
         CommandError {
-            cmd,
+            cmd: cmd.clone(),
             err: err.to_owned(),
         }
     }
-    pub fn new(cmd: &'static Command, err: String) -> CommandError {
+    pub fn new(cmd: &Command, err: String) -> CommandError {
         CommandError {
-            cmd,
+            cmd: cmd.clone(),
             err,
         }
     }

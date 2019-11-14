@@ -109,7 +109,7 @@ impl EventHandler for Handler {
                                              Arc::clone(&self.scheduler),
                                              Arc::clone(&self.safe),
                                              Arc::clone(&self.image),
-                                             Arc::clone(&self.settings));
+                                             Arc::clone(&self.settings), &cmd);
             match (cmd.func)(args) {
                 Ok(print_usage) => {
                     if print_usage {
@@ -167,37 +167,37 @@ fn main() {
         discord_token = var("DISCORD_TOKEN").expect("Need DISCORD_TOKEN var");
     }
 
+    // LOAD IMAGES
+    let templates_path = Path::new("./templates/");
+    let images = Arc::new(util::image::ImageStorage::load(templates_path).expect("could not create image storage"));
+
     // REGISTER COMMANDS
     let mut command_handler = CommandManager::new();
     {
-        command_handler.register_command(&commands::help::HELP_COMMAND);
-        command_handler.register_command(&commands::animal::cat::CAT_COMMAND);
-        command_handler.register_command(&commands::animal::dog::DOG_COMMAND);
-        command_handler.register_command(&commands::animal::dog::DOG_BREEDS_COMMAND);
-        //command_handler.register_command(&commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND);
-        command_handler.register_command(&commands::meme::MEME_COMMAND);
-        command_handler.register_command(&commands::about::ABOUT_COMMAND);
-        command_handler.register_command(&commands::urban::URBAN_COMMAND);
-        command_handler.register_command(&commands::animal::fox::FOX_COMMAND);
-        command_handler.register_command(&commands::animal::birb::BIRB_COMMAND);
-        command_handler.register_command(&commands::chuck::CHUCK_COMMAND);
-        command_handler.register_command(&commands::urbanmug::URBANMUG_COMMAND);
-        command_handler.register_command(&commands::animal::rabbit::RABBIT_COMMAND);
-        command_handler.register_command(&commands::animal::aww::AWW_COMMAND);
-        command_handler.register_command(&commands::make::MAKE_COMMAND);
+        command_handler.register_command(commands::help::HELP_COMMAND.clone());
+        command_handler.register_command(commands::animal::cat::CAT_COMMAND.clone());
+        command_handler.register_command(commands::animal::dog::DOG_COMMAND.clone());
+        command_handler.register_command(commands::animal::dog::DOG_BREEDS_COMMAND.clone());
+        //command_handler.register_command(commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND.clone());
+        command_handler.register_command(commands::meme::MEME_COMMAND.clone());
+        command_handler.register_command(commands::about::ABOUT_COMMAND.clone());
+        command_handler.register_command(commands::urban::URBAN_COMMAND.clone());
+        command_handler.register_command(commands::animal::fox::FOX_COMMAND.clone());
+        command_handler.register_command(commands::animal::birb::BIRB_COMMAND.clone());
+        command_handler.register_command(commands::chuck::CHUCK_COMMAND.clone());
+        command_handler.register_command(commands::urbanmug::URBANMUG_COMMAND.clone());
+        command_handler.register_command(commands::animal::rabbit::RABBIT_COMMAND.clone());
+        command_handler.register_command(commands::animal::aww::AWW_COMMAND.clone());
 
+        commands::image_gen::command_gen::register_images(&mut command_handler, images.as_ref());
 
         for command in command_handler.get_all_commands().iter() {
             info!("Registered command: {}", command.key);
         }
     }
 
-    let templates_path = Path::new("./templates/");
-
     // START CLIENT
     info!("Starting client");
-    let mut client = Client::new(&discord_token, Handler::new(command_handler,
-                                                              Arc::new(util::image::ImageStorage::load(templates_path).expect("could not create image storage")),
-    )).expect("Could not create Client");
+    let mut client = Client::new(&discord_token, Handler::new(command_handler, images)).expect("Could not create Client");
     client.start_autosharded().expect("Could not start discord client");
 }
