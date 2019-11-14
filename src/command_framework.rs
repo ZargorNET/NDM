@@ -10,7 +10,7 @@ use crate::scheduler::Scheduler;
 use crate::util;
 
 pub struct CommandManager {
-    commands: Vec<&'static Command>
+    commands: Vec<Command>
 }
 
 
@@ -71,11 +71,11 @@ impl CommandManager {
         }
     }
 
-    pub fn register_command(&mut self, cmd: &'static Command) {
+    pub fn register_command(&mut self, cmd: Command) {
         self.commands.push(cmd);
     }
 
-    pub fn get_all_commands(&self) -> &Vec<&'static Command> {
+    pub fn get_all_commands(&self) -> &Vec<Command> {
         &self.commands
     }
 }

@@ -3,18 +3,11 @@ use std::io::Read;
 use reqwest::Response;
 use serenity::http::AttachmentType;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::{CommandArguments, CommandResult};
 use crate::util::image::feature::FeatureType;
 use crate::util::image::Template;
 
-pub static TEST_MAKE: Command = Command {
-    key: "slap",
-    description: "t",
-    help_page: "#t",
-    category: "t",
-    func: image_gen,
-};
-
+pub mod command_gen;
 
 fn image_gen(args: CommandArguments) -> CommandResult {
     let mut split = args.m.content.split_whitespace();
@@ -120,31 +113,4 @@ fn image_gen(args: CommandArguments) -> CommandResult {
     });
 
     Ok(true)
-}
-
-fn print_all_features(args: &CommandArguments) {
-    let _ = args.m.channel_id.send_message(args.ctx, |mb| {
-        mb.embed(|mut eb| {
-            let mut buf = "".to_owned();
-            for s in args.image.get_all_keys() {
-                buf.push_str(&s);
-                buf.push_str(" | ");
-            }
-
-            if buf.is_empty() {
-                eb.title("No templates found! Sorry :/");
-                return eb;
-            }
-
-            let to_print = &buf[0..buf.len() - 3]; // Remove last " | "
-
-            eb.title("Please specify which meme you want to generate");
-            eb.description(format!("``#make <{}>``", to_print));
-
-            super::util::add_timestamp(&mut eb);
-            super::util::add_footer(&mut eb, &args);
-
-            eb
-        })
-    });
 }
