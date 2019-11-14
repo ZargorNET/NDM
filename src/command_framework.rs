@@ -8,7 +8,6 @@ use serenity::prelude::{Context, RwLock};
 use crate::{StaticSettings, util};
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
-use crate::util;
 
 pub struct CommandManager {
     commands: Vec<Command>

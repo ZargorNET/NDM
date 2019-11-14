@@ -136,13 +136,13 @@ fn print_template_features(images: &ImageStorage, template_key: &str) -> String 
                 } else {
                     buf.push_str(&format!("<{}:@User> ", f.key));
                 }
-            },
+            }
             FeatureType::SplitText => {
                 buf.push_str(&format!("<{}:Text>, ", f.key));
-            },
+            }
             FeatureType::Text => {
                 buf.push_str(&format!("<{}:Text> ", f.key));
-            },
+            }
             FeatureType::Image => {}
         }
     }
@@ -150,6 +150,8 @@ fn print_template_features(images: &ImageStorage, template_key: &str) -> String 
     if buf.ends_with(", ") {
         buf.drain((buf.len() - 2)..);
     }
+    if buf.ends_with(" ") { buf.drain(buf.len() - 1..); }
+
 
     buf
 }

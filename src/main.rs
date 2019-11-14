@@ -82,6 +82,9 @@ impl EventHandler for Handler {
         if msg.author.bot {
             return;
         }
+        if msg.is_private() {
+            return;
+        }
 
         info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
         //TODO: Server config prefix

@@ -7,7 +7,7 @@ pub fn register_images(command_manager: &mut CommandManager, images: &ImageStora
         command_manager.register_command(Command {
             key: Box::leak(key.clone().into_boxed_str()),
             description: Box::leak(format!("Generates a new {} image", &key).into_boxed_str()),
-            help_page: Box::leak(format!("#{} {}", &key, print_template_features(images, &key)).into_boxed_str()),
+            help_page: Box::leak(format!("{}", print_template_features(images, &key)).into_boxed_str()),
             category: "Image",
             func: super::image_gen,
         });

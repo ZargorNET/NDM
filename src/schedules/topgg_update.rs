@@ -46,7 +46,7 @@ pub fn update_topgg(args: ScheduleArguments) {
             return;
         }
     };
-    let gg_response: TopGGResponse = match serde_json::from_str(&res_text) {
+    let _gg_response: TopGGResponse = match serde_json::from_str(&res_text) {
         Ok(k) => k,
         Err(e) => {
             error!("TOP_GG_UPDATE SCHEDULER: Could not parse body of TopGGResponse: {}", e);
