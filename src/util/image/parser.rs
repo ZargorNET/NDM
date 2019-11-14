@@ -119,8 +119,8 @@ pub fn parse(path: &Path) -> Result<Vec<PartialTemplate>, Error> {
                 },
                 FeatureType::UserImage => {
                     if feat.default_user.unwrap_or_default() == true {
-                        if features.iter().any(|a| a.kind == FeatureType::UserImage) {
-                            warn!(r#"TEMPLATE PARSER: user_image feature "{}" in template "{}" with attribute default_user = true must be the first feature (of it's kind)!"#, feat.key, &metadata.name);
+                        if features.len() != 0 {
+                            warn!(r#"TEMPLATE PARSER: user_image feature "{}" in template "{}" with attribute default_user = true must be the first feature!"#, feat.key, &metadata.name);
                             continue 'tomlLoop; // SKIP THIS TEMPLATE
                         }
                     }

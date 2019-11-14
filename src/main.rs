@@ -94,7 +94,7 @@ impl EventHandler for Handler {
                                              Arc::clone(&self.ch),
                                              Arc::clone(&self.scheduler),
                                              Arc::clone(&self.safe),
-                                             Arc::clone(&self.image));
+                                             Arc::clone(&self.image), &cmd);
             match (cmd.func)(args) {
                 Ok(print_usage) => {
                     if print_usage {
@@ -165,7 +165,7 @@ fn main() {
         command_handler.register_command(&commands::urbanmug::URBANMUG_COMMAND);
         command_handler.register_command(&commands::animal::rabbit::RABBIT_COMMAND);
         command_handler.register_command(&commands::animal::aww::AWW_COMMAND);
-        command_handler.register_command(&commands::make::MAKE_COMMAND);
+        command_handler.register_command(&commands::image_gen::TEST_MAKE);
 
 
         for command in command_handler.get_all_commands().iter() {

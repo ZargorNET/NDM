@@ -29,6 +29,7 @@ pub struct CommandArguments<'a> {
     pub scheduler: Arc<RwLock<Scheduler>>,
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
+    pub command: &'a Command,
 }
 
 #[derive(Clone)]
@@ -43,7 +44,7 @@ pub struct Command {
 
 #[derive(Debug, Clone)]
 pub struct CommandError {
-    pub  cmd: &'static Command,
+    pub  cmd: Command,
     pub  err: String,
 }
 
@@ -80,7 +81,7 @@ impl CommandManager {
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, command: &'a Command) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
@@ -88,21 +89,22 @@ impl<'a> CommandArguments<'a> {
             scheduler,
             safe,
             image,
+            command
         }
     }
 }
 
 #[allow(dead_code)]
 impl CommandError {
-    pub fn new_str(cmd: &'static Command, err: &str) -> CommandError {
+    pub fn new_str(cmd: &Command, err: &str) -> CommandError {
         CommandError {
-            cmd,
+            cmd: cmd.clone(),
             err: err.to_owned(),
         }
     }
-    pub fn new(cmd: &'static Command, err: String) -> CommandError {
+    pub fn new(cmd: &Command, err: String) -> CommandError {
         CommandError {
-            cmd,
+            cmd: cmd.clone(),
             err,
         }
     }
