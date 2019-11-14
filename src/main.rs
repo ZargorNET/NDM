@@ -88,7 +88,8 @@ impl EventHandler for Handler {
 
         info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
         //TODO: Server config prefix
-        if !msg.content.starts_with(&self.settings.read().default_prefix) {
+        //if !msg.content.starts_with(&self.settings.read().default_prefix) {
+        if !msg.content.starts_with("#") {
             return;
         }
 
@@ -202,5 +203,5 @@ fn main() {
     // START CLIENT
     info!("Starting client");
     let mut client = Client::new(&discord_token, Handler::new(command_handler, images)).expect("Could not create Client");
-    client.start_autosharded().expect("Could not start discord client");
+    client.start_shards(2).expect("Could not start discord client");
 }
