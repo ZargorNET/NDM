@@ -85,7 +85,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
                     }
                 };
 
-                avatar_url = avatar_url.replace(".webp?size=1024", ".png?size=512"); // IMAGE LIB DOES NOT FULLY SUPPORT .WEBP
+                avatar_url = avatar_url.replace(".webp?size=1024", ".png?size=128"); // IMAGE LIB DOES NOT FULLY SUPPORT .WEBP
 
                 let url = unwrap_cmd_err!(args.command, reqwest::Url::parse(&avatar_url), "could not build avatar url");
                 let req = unwrap_cmd_err!(args.command, http.get(url).build(), "could not build avatar command");
