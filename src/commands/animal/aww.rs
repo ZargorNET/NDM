@@ -3,6 +3,7 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
+use crate::util::enums::category::Category;
 
 pub const AWW_CACHE_KEY: &'static str = "awwcache";
 
@@ -10,7 +11,8 @@ pub static AWW_COMMAND: Command = Command {
     key: "aww",
     description: "r/aww",
     help_page: "",
-    category: "Animals",
+    category: Category::Animals,
+    show_on_help: true,
     func: aww_command,
 };
 

@@ -3,12 +3,14 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
+use crate::util::enums::category::Category;
 
 pub static MEME_COMMAND: Command = Command {
     key: "meme",
     description: "Gets a random meme",
     help_page: "",
-    category: "Fun",
+    category: Category::Fun,
+    show_on_help: true,
     func: meme_command,
 };
 

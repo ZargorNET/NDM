@@ -2,12 +2,14 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
+use crate::util::enums::category::Category;
 
 pub static CAT_COMMAND: Command = Command {
     key: "cat",
     description: "Gives you a random cat",
     help_page: "",
-    category: "Animals",
+    category: Category::Animals,
+    show_on_help: true,
     func: cat_command,
 };
 

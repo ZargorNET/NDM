@@ -1,12 +1,14 @@
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::util::enums::category::Category;
 
 pub static ABOUT_COMMAND: Command = Command {
     key: "about",
     description: "Shows some info about this bot",
     help_page: "",
-    category: "Misc",
+    category: Category::Misc,
+    show_on_help: true,
     func: about_command,
 };
 

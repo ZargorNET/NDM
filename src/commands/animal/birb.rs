@@ -3,12 +3,14 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
+use crate::util::enums::category::Category;
 
 pub static BIRB_COMMAND: Command = Command {
     key: "birb",
     description: "Gets a random birb",
     help_page: "",
-    category: "Animals",
+    category: Category::Animals,
+    show_on_help: true,
     func: birb_command,
 };
 

@@ -8,6 +8,7 @@ use serenity::prelude::{Context, RwLock};
 use crate::{StaticSettings, util};
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
+use crate::util::enums::category::Category;
 
 pub struct CommandManager {
     commands: Vec<Command>
@@ -38,7 +39,8 @@ pub struct Command {
     pub   key: &'static str,
     pub   description: &'static str,
     pub   help_page: &'static str,
-    pub   category: &'static str,
+    pub   category: Category,
+    pub   show_on_help: bool,
     pub   func: fn(args: CommandArguments) -> CommandResult,
 }
 
@@ -53,7 +55,7 @@ pub type CommandResult = Result<bool, CommandError>;
 
 impl fmt::Debug for Command {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, r##"Command {{ key = "{}", desc = "{}", help = "{}", cat = "{}" }}"##, self.key, self.description, self.help_page, self.category)
+        write!(f, r##"Command {{ key = "{}", desc = "{}", help = "{}", cat = "{}" }}"##, self.key, self.description, self.help_page, self.category.to_string())
     }
 }
 

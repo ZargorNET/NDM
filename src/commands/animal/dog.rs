@@ -3,12 +3,14 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
+use crate::util::enums::category::Category;
 
 pub static DOG_COMMAND: Command = Command {
     key: "dog",
     description: "Shows you a dog :)!",
     help_page: "[<optional: breed>]",
-    category: "Animals",
+    category: Category::Animals,
+    show_on_help: true,
     func: dog_command,
 };
 
@@ -16,7 +18,8 @@ pub static DOG_BREEDS_COMMAND: Command = Command {
     key: "dogbreeds",
     description: "Shows you all available breeds",
     help_page: "",
-    category: "Animals",
+    category: Category::Animals,
+    show_on_help: true,
     func: dog_breed_command,
 };
 

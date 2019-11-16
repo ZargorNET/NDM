@@ -88,8 +88,7 @@ impl EventHandler for Handler {
 
         info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
         //TODO: Server config prefix
-        //if !msg.content.starts_with(&self.settings.read().default_prefix) {
-        if !msg.content.starts_with("#") {
+        if !msg.content.starts_with(&self.settings.read().default_prefix) {
             return;
         }
 
