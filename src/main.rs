@@ -182,15 +182,16 @@ fn main() {
         command_handler.register_command(commands::animal::dog::DOG_COMMAND.clone());
         command_handler.register_command(commands::animal::dog::DOG_BREEDS_COMMAND.clone());
         //command_handler.register_command(commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND.clone());
-        command_handler.register_command(commands::meme::MEME_COMMAND.clone());
+        command_handler.register_command(commands::fun::meme::MEME_COMMAND.clone());
         command_handler.register_command(commands::about::ABOUT_COMMAND.clone());
-        command_handler.register_command(commands::urban::URBAN_COMMAND.clone());
+        command_handler.register_command(commands::fun::urban::URBAN_COMMAND.clone());
         command_handler.register_command(commands::animal::fox::FOX_COMMAND.clone());
         command_handler.register_command(commands::animal::birb::BIRB_COMMAND.clone());
-        command_handler.register_command(commands::chuck::CHUCK_COMMAND.clone());
-        command_handler.register_command(commands::urbanmug::URBANMUG_COMMAND.clone());
+        command_handler.register_command(commands::fun::chuck::CHUCK_COMMAND.clone());
+        command_handler.register_command(commands::fun::urbanmug::URBANMUG_COMMAND.clone());
         command_handler.register_command(commands::animal::rabbit::RABBIT_COMMAND.clone());
         command_handler.register_command(commands::animal::aww::AWW_COMMAND.clone());
+        command_handler.register_command(commands::fun::love::LOVE_COMMAND.clone());
 
         commands::image_gen::command_gen::register_images(&mut command_handler, images.as_ref());
 

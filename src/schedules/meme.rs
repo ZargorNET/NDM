@@ -2,7 +2,7 @@ use crate::{commands, util};
 use crate::scheduler::ScheduleArguments;
 
 pub fn fetch_memes(args: ScheduleArguments) {
-    let mut memes: Vec<commands::meme::Meme> = Vec::new();
+    let mut memes: Vec<commands::fun::meme::Meme> = Vec::new();
     let mut after: String = "".to_string();
     // Fetch 3 Sites of Reddit
     for _i in 0..3 {
@@ -19,7 +19,7 @@ pub fn fetch_memes(args: ScheduleArguments) {
             let mut url = "https://reddit.com".to_owned();
             url.push_str(&meme.permalink);
 
-            memes.push(commands::meme::Meme {
+            memes.push(commands::fun::meme::Meme {
                 title: meme.title,
                 url,
                 image: meme.url,
@@ -41,5 +41,5 @@ pub fn fetch_memes(args: ScheduleArguments) {
     memes.shrink_to_fit();
     info!("MEME SCHEDULER: Fetched {} memes!", memes.len());
     let mut safe = args.safe.write();
-    safe.store(commands::meme::MEME_CACHE_KEY, memes);
+    safe.store(commands::fun::meme::MEME_CACHE_KEY, memes);
 }

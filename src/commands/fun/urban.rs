@@ -64,11 +64,11 @@ fn urban_command(args: CommandArguments) -> CommandResult {
             eb.title(format!(r#"Urban Dictionary: "{}""#, &term));
             eb.url(&uo.permalink);
             eb.description(format!("By user {}", &uo.author));
-            eb.field("Definition", super::util::shorten_string(&uo.definition, super::util::DISCORD_EMBED_FIELD_VALE_MAX_LENGTH), false);
-            eb.field("Example", super::util::shorten_string(&uo.example, super::util::DISCORD_EMBED_FIELD_VALE_MAX_LENGTH), false);
+            eb.field("Definition", super::super::util::shorten_string(&uo.definition, super::super::util::DISCORD_EMBED_FIELD_VALE_MAX_LENGTH), false);
+            eb.field("Example", super::super::util::shorten_string(&uo.example, super::super::util::DISCORD_EMBED_FIELD_VALE_MAX_LENGTH), false);
 
-            super::util::add_timestamp(&mut eb);
-            super::util::add_footer(&mut eb, &args);
+            super::super::util::add_timestamp(&mut eb);
+            super::super::util::add_footer(&mut eb, &args);
 
             eb
         });
