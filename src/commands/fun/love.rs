@@ -41,7 +41,7 @@ fn love_command(args: CommandArguments) -> CommandResult {
         rnd = 101;
     }
     args.m.channel_id.send_message(args.ctx, |f| {
-        let message;
+        let mut message;
         if rnd < 45 {
             message = "Dude get someone else than that.";
         } else if rnd < 75 {
