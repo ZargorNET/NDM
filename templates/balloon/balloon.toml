@@ -1,0 +1,41 @@
+name = "balloon"
+
+[[features]]
+key = "text1"
+kind = "split_text"
+x = 35
+y = 141
+w = 235
+h = 130
+font_size = 44
+font_color = [0,0,0,255]
+
+[[features]]
+key = "text1"
+kind = "split_text"
+x = 35
+y = 510
+w = 205
+h = 130
+font_size = 44
+font_color = [0,0,0,255]
+
+[[features]]
+key = "text1"
+kind = "split_text"
+x = 477
+y = 510
+w = 170
+h = 130
+font_size = 30
+font_color = [0,0,0,255]
+
+[[features]]
+key = "bullet"
+kind = "split_text"
+x = 610
+y = 155
+w = 140
+h = 100
+font_size = 30
+font_color = [0,0,0,255]

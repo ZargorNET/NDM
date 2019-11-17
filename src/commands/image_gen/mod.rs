@@ -52,7 +52,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
                             let _ = args.m.channel_id.send_message(args.ctx, |mb| {
                                 mb.embed(|mut eb| {
                                     eb.title(format!(r#"Meme Maker: "{}""#, key));
-                                    eb.description(format!("Please specify following parameters: \n``#{} {}``", key, print_template_features(&args.image, key)));
+                                    eb.description(format!("Please specify following parameters: \n``{}{} {}``", args.settings.read().default_prefix, key, print_template_features(&args.image, key)));
 
                                     super::util::add_timestamp(&mut eb);
                                     super::util::add_footer(&mut eb, &args);
