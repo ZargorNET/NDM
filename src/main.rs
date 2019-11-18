@@ -9,6 +9,7 @@ use std::fs::File;
 use std::path::Path;
 use std::sync::Arc;
 
+use chrono::{DateTime, Utc};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
@@ -25,11 +26,19 @@ mod command_framework;
 mod commands;
 mod schedules;
 
+pub const SERENITY_CACHE_SAFE_KEY: &'static str = "SERENITY_CACHE";
+
+pub struct StaticSettings {
+    default_prefix: String,
+    start_time: DateTime<Utc>,
+}
+
 struct Handler {
     ch: Arc<RwLock<CommandManager>>,
     scheduler: Arc<RwLock<Scheduler>>,
     safe: Arc<RwLock<Safe>>,
     image: Arc<util::image::ImageStorage>,
+    settings: Arc<RwLock<StaticSettings>>,
 }
 
 impl Handler {
@@ -37,18 +46,24 @@ impl Handler {
         let ch = Arc::new(RwLock::new(ch));
         let safe = Arc::new(RwLock::new(Safe::new()));
         let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe));
+        let settings = Arc::new(RwLock::new(StaticSettings {
+            default_prefix: "+".to_string(),
+            start_time: Utc::now(),
+        }));
+
         Handler {
             ch,
             scheduler,
             safe,
             image,
+            settings,
         }
     }
 }
 
 impl Handler {
     fn update_activity(&self, ctx: &Context) {
-        ctx.set_activity(Activity::playing(&format!("#help | {} guilds", ctx.cache.read().all_guilds().len())));
+        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), self.settings.read().default_prefix)));
     }
 }
 
@@ -67,7 +82,13 @@ impl EventHandler for Handler {
         if msg.author.bot {
             return;
         }
-        if !msg.content.starts_with("#") {
+        if msg.is_private() {
+            return;
+        }
+
+        info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
+        //TODO: Server config prefix
+        if !msg.content.starts_with(&self.settings.read().default_prefix) {
             return;
         }
 
@@ -76,16 +97,12 @@ impl EventHandler for Handler {
         let msg_split: Vec<&str> = msg.content.split_whitespace().collect();
 
         let cmd;
-
         {
             let command_manager_arc = Arc::clone(&self.ch);
             let command_manager = command_manager_arc.read();
             match command_manager.get_command(msg_split[0]) {
                 Some(c) => cmd = c.clone(),
-                None => {
-                    let _ = msg.reply(&ctx, "Command not found!");
-                    return;
-                }
+                None => return
             }
         } // DROP READ LOCK
         {
@@ -94,7 +111,8 @@ impl EventHandler for Handler {
                                              Arc::clone(&self.ch),
                                              Arc::clone(&self.scheduler),
                                              Arc::clone(&self.safe),
-                                             Arc::clone(&self.image), &cmd);
+                                             Arc::clone(&self.image),
+                                             Arc::clone(&self.settings), &cmd);
             match (cmd.func)(args) {
                 Ok(print_usage) => {
                     if print_usage {
@@ -102,7 +120,7 @@ impl EventHandler for Handler {
                     } else {
                         let _ = msg.react(&ctx, ReactionType::from("❌"));
                         let _ = msg.channel_id.send_message(&ctx, |eb| {
-                            eb.content(format!("Invalid syntax! Try: ``{}``", cmd.help_page));
+                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", self.settings.read().default_prefix, cmd.key, cmd.help_page));
                             eb
                         });
                     }
@@ -118,14 +136,18 @@ impl EventHandler for Handler {
 
 
     fn ready(&self, ctx: Context, _red: Ready) {
+        { self.safe.write().store(SERENITY_CACHE_SAFE_KEY, Arc::clone(&ctx.cache)); }
+
         let scheduler = Arc::clone(&self.scheduler);
         let mut scheduler = scheduler.write();
         scheduler.clear_all();
+        scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
         scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
         scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
         scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
+        scheduler.schedule_repeated(1 * 60 * 60, schedules::update_topgg); // EVERY 1 HOUR
         self.update_activity(&ctx);
         info!("Bot started!");
     }
@@ -159,16 +181,16 @@ fn main() {
         command_handler.register_command(commands::animal::cat::CAT_COMMAND.clone());
         command_handler.register_command(commands::animal::dog::DOG_COMMAND.clone());
         command_handler.register_command(commands::animal::dog::DOG_BREEDS_COMMAND.clone());
-        command_handler.register_command(commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND.clone());
-        command_handler.register_command(commands::meme::MEME_COMMAND.clone());
+        command_handler.register_command(commands::fun::meme::MEME_COMMAND.clone());
         command_handler.register_command(commands::about::ABOUT_COMMAND.clone());
-        command_handler.register_command(commands::urban::URBAN_COMMAND.clone());
+        command_handler.register_command(commands::fun::urban::URBAN_COMMAND.clone());
         command_handler.register_command(commands::animal::fox::FOX_COMMAND.clone());
         command_handler.register_command(commands::animal::birb::BIRB_COMMAND.clone());
-        command_handler.register_command(commands::chuck::CHUCK_COMMAND.clone());
-        command_handler.register_command(commands::urbanmug::URBANMUG_COMMAND.clone());
+        command_handler.register_command(commands::fun::chuck::CHUCK_COMMAND.clone());
+        command_handler.register_command(commands::fun::urbanmug::URBANMUG_COMMAND.clone());
         command_handler.register_command(commands::animal::rabbit::RABBIT_COMMAND.clone());
         command_handler.register_command(commands::animal::aww::AWW_COMMAND.clone());
+        command_handler.register_command(commands::fun::love::LOVE_COMMAND.clone());
 
         commands::image_gen::command_gen::register_images(&mut command_handler, images.as_ref());
 
@@ -180,5 +202,5 @@ fn main() {
     // START CLIENT
     info!("Starting client");
     let mut client = Client::new(&discord_token, Handler::new(command_handler, images)).expect("Could not create Client");
-    client.start().expect("Could not start discord client");
+    client.start_shards(2).expect("Could not start discord client");
 }

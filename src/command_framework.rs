@@ -5,9 +5,10 @@ use std::sync::Arc;
 use serenity::model::prelude::Message;
 use serenity::prelude::{Context, RwLock};
 
+use crate::{StaticSettings, util};
+use crate::commands::category::Category;
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
-use crate::util;
 
 pub struct CommandManager {
     commands: Vec<Command>
@@ -29,16 +30,17 @@ pub struct CommandArguments<'a> {
     pub scheduler: Arc<RwLock<Scheduler>>,
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
+    pub settings: Arc<RwLock<StaticSettings>>,
     pub command: &'a Command,
 }
 
 #[derive(Clone)]
 pub struct Command {
-    pub   key: &'static str,
-    pub   description: &'static str,
-    pub   help_page: &'static str,
-    pub   category: &'static str,
-    pub   func: fn(args: CommandArguments) -> CommandResult,
+    pub key: &'static str,
+    pub description: &'static str,
+    pub help_page: &'static str,
+    pub category: Category,
+    pub func: fn(args: CommandArguments) -> CommandResult,
 }
 
 
@@ -52,7 +54,7 @@ pub type CommandResult = Result<bool, CommandError>;
 
 impl fmt::Debug for Command {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, r##"Command {{ key = "{}", desc = "{}", help = "{}", cat = "{}" }}"##, self.key, self.description, self.help_page, self.category)
+        write!(f, r##"Command {{ key = "{}", desc = "{}", help = "{}", cat = "{}" }}"##, self.key, self.description, self.help_page, self.category.to_string())
     }
 }
 
@@ -81,7 +83,7 @@ impl CommandManager {
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, command: &'a Command) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<RwLock<StaticSettings>>, command: &'a Command) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
@@ -89,7 +91,8 @@ impl<'a> CommandArguments<'a> {
             scheduler,
             safe,
             image,
-            command
+            settings,
+            command,
         }
     }
 }

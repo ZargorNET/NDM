@@ -80,7 +80,6 @@ impl ImageStorage {
     }
 }
 
-
 pub struct Template {
     pub name: String,
     pub base: DynamicImage,
