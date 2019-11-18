@@ -12,6 +12,8 @@ pub static BIRB_COMMAND: Command = Command {
     func: birb_command,
 };
 
+pub const BIRB_CACHE_KEY: &'static str = "birbcache";
+
 const BIRB_SLOGANS: &'static [&'static str] = &[
     "Weird plane. Should do way more noise... It must be coming from AREA 51",
     "BIRB OR IS IT BIRD",

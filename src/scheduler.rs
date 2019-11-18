@@ -4,7 +4,7 @@ use chrono::{DateTime, TimeZone, Utc};
 use serenity::prelude::RwLock;
 
 use crate::command_framework::CommandManager;
-use crate::util::safe::Safe;
+use crate::safe::Safe;
 
 pub type ScheduleFunction = fn(ScheduleArguments);
 

@@ -8,6 +8,8 @@ pub mod birb;
 pub mod rabbit;
 pub mod aww;
 
+const DOG_CAT_WAR_STORAGE_KEY: &'static str = "dogcatwar";
+
 #[derive(Clone)]
 struct DogCatWar {
     cat_sup: i32,

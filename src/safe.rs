@@ -2,8 +2,6 @@ use std::any::Any;
 use std::borrow::ToOwned;
 use std::collections::HashMap;
 
-pub mod keys;
-
 pub struct Safe {
     safe: HashMap<String, Box<dyn Any + Send + Sync>>
 }

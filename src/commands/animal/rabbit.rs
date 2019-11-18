@@ -4,6 +4,8 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 
+pub const RABBIT_CACHE_KEY: &'static str = "rabbitcache";
+
 pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
     description: "Gets you an hoppyboi",

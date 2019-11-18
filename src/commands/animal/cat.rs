@@ -23,6 +23,7 @@ const CAT_SLOGANS: &'static [&'static str] = &[
     "SNEAK, SNEAK, SNEAK",
 ];
 
+
 fn cat_command(args: CommandArguments) -> CommandResult {
     let mut res = unwrap_cmd_err!(&CAT_COMMAND, reqwest::get("htta://aws.random.cat/meow"), "could not connect to cat service");
 
