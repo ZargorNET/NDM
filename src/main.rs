@@ -14,11 +14,10 @@ use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
-use crate::safe::Safe;
 use crate::scheduler::Scheduler;
+use crate::util::safe::Safe;
 
 mod util;
-mod safe;
 mod scheduler;
 #[macro_use]
 mod command_framework;
@@ -83,7 +82,6 @@ impl EventHandler for Handler {
             match command_manager.get_command(msg_split[0]) {
                 Some(c) => cmd = c.clone(),
                 None => {
-                    let _ = msg.reply(&ctx, "Command not found!");
                     return;
                 }
             }
@@ -118,14 +116,6 @@ impl EventHandler for Handler {
 
 
     fn ready(&self, ctx: Context, _red: Ready) {
-        let scheduler = Arc::clone(&self.scheduler);
-        let mut scheduler = scheduler.write();
-        scheduler.clear_all();
-        scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
-        scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
         self.update_activity(&ctx);
         info!("Bot started!");
     }
@@ -177,8 +167,19 @@ fn main() {
         }
     }
 
+    info!("Starting scheduler thread");
+    let handler = Handler::new(command_handler, images);
+    let scheduler = Arc::clone(&handler.scheduler);
+    let mut scheduler = scheduler.write();
+    scheduler.clear_all();
+    scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
+    scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
+
     // START CLIENT
     info!("Starting client");
-    let mut client = Client::new(&discord_token, Handler::new(command_handler, images)).expect("Could not create Client");
+    let mut client = Client::new(&discord_token, handler).expect("Could not create Client");
     client.start().expect("Could not start discord client");
 }

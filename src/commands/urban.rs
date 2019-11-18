@@ -16,8 +16,6 @@ struct FullUrbanResponse {
     list: Vec<UrbanResponse>
 }
 
-
-
 #[derive(Serialize, Deserialize)]
 struct UrbanResponse {
     defid: u32,

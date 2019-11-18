@@ -4,8 +4,6 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 
-pub const AWW_CACHE_KEY: &'static str = "awwcache";
-
 pub static AWW_COMMAND: Command = Command {
     key: "aww",
     description: "r/aww",

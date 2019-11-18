@@ -34,7 +34,6 @@ const DOG_SLOGANS: &'static [&'static str] = &[
     "i want pettttssssss"
 ];
 
-pub const DOG_CACHE_KEY: &'static str = "dogcache";
 
 pub struct DogCache {
     pub breeds: Vec<DogBreed>

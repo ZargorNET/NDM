@@ -5,9 +5,9 @@ use std::sync::Arc;
 use serenity::model::prelude::Message;
 use serenity::prelude::{Context, RwLock};
 
-use crate::safe::Safe;
 use crate::scheduler::Scheduler;
 use crate::util;
+use crate::util::safe::Safe;
 
 pub struct CommandManager {
     commands: Vec<Command>
