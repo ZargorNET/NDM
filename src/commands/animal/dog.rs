@@ -79,7 +79,7 @@ fn dog_command(args: CommandArguments) -> CommandResult {
             dog_breed = match dog_cache.breeds.iter().find(|b| b.name.to_lowercase() == split[1].to_lowercase()) {
                 Some(s) => s,
                 None => {
-                    let _ = args.m.reply(args.ctx, "Dog breed not found! View all breeds using ``#dogbreeds``");
+                    let _ = args.m.reply(args.ctx, format!("Dog breed not found! View all breeds using ``{}dogbreeds``", args.settings.read().default_prefix));
                     return Ok(true);
                 }
             };
