@@ -15,18 +15,16 @@ use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
-use crate::safe::Safe;
 use crate::scheduler::Scheduler;
+use crate::util::safe::keys::other::SERENITY_CACHE_KEY;
+use crate::util::safe::Safe;
 
 mod util;
-mod safe;
 mod scheduler;
 #[macro_use]
 mod command_framework;
 mod commands;
 mod schedules;
-
-pub const SERENITY_CACHE_SAFE_KEY: &'static str = "SERENITY_CACHE";
 
 pub struct StaticSettings {
     default_prefix: String,
@@ -136,7 +134,12 @@ impl EventHandler for Handler {
 
 
     fn ready(&self, ctx: Context, _red: Ready) {
-        { self.safe.write().store(SERENITY_CACHE_SAFE_KEY, Arc::clone(&ctx.cache)); }
+        {
+            let exists = self.safe.read().exists(SERENITY_CACHE_KEY);
+            if !exists {
+                self.safe.write().store(SERENITY_CACHE_KEY, Arc::clone(&ctx.cache));
+            }
+        }
         self.update_activity(&ctx);
         info!("Shard {} started!", ctx.shard_id);
     }

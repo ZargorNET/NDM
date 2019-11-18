@@ -3,15 +3,16 @@ use std::sync::Arc;
 use serenity::cache::Cache;
 use serenity::prelude::RwLock;
 
-use crate::commands::about::{Statistics, STATISTICS_CACHE_KEY};
+use crate::commands::about::Statistics;
 use crate::scheduler::ScheduleArguments;
-use crate::SERENITY_CACHE_SAFE_KEY;
+use crate::util::safe::keys::commands::STATISTICS_CACHE_KEY;
+use crate::util::safe::keys::other::SERENITY_CACHE_KEY;
 
 pub fn update_statistics(args: ScheduleArguments) {
     let cache;
 
     {
-        cache = match args.safe.read().get::<Arc<RwLock<Cache>>>(SERENITY_CACHE_SAFE_KEY) {
+        cache = match args.safe.read().get::<Arc<RwLock<Cache>>>(SERENITY_CACHE_KEY) {
             Some(s) => s.clone(),
             None => {
                 error!("STATISTIC SCHEDULER: could not get serenity cache");

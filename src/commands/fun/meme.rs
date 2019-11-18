@@ -4,6 +4,7 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 use crate::commands::category::Category;
+use crate::util::safe::keys::commands::MEME_CACHE_KEY;
 
 pub static MEME_COMMAND: Command = Command {
     key: "meme",
@@ -21,8 +22,6 @@ pub struct Meme {
     pub subreddit: String,
     pub upvotes: u32,
 }
-
-pub const MEME_CACHE_KEY: &'static str = "memecache";
 
 fn meme_command(args: CommandArguments) -> CommandResult {
     let safe = args.safe.read();

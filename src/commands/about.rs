@@ -2,6 +2,7 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands::category::Category;
+use crate::util::safe::keys::commands::STATISTICS_CACHE_KEY;
 
 pub static ABOUT_COMMAND: Command = Command {
     key: "about",
@@ -10,8 +11,6 @@ pub static ABOUT_COMMAND: Command = Command {
     category: Category::Misc,
     func: about_command,
 };
-
-pub const STATISTICS_CACHE_KEY: &'static str = "STATISTICS";
 
 #[derive(Clone)]
 pub struct Statistics {

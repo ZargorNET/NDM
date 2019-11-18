@@ -4,6 +4,7 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 use crate::commands::category::Category;
+use crate::util::safe::keys::commands::BIRB_CACHE_KEY;
 
 pub static BIRB_COMMAND: Command = Command {
     key: "birb",
@@ -12,8 +13,6 @@ pub static BIRB_COMMAND: Command = Command {
     category: Category::Animals,
     func: birb_command,
 };
-
-pub const BIRB_CACHE_KEY: &'static str = "birbcache";
 
 const BIRB_SLOGANS: &'static [&'static str] = &[
     "Weird plane. Should do way more noise... It must be coming from AREA 51",

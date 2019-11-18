@@ -4,6 +4,7 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 use crate::commands::category::Category;
+use crate::util::safe::keys::commands::DOG_CACHE_KEY;
 
 pub static DOG_COMMAND: Command = Command {
     key: "dog",
@@ -21,8 +22,6 @@ pub static DOG_BREEDS_COMMAND: Command = Command {
 
     func: dog_breed_command,
 };
-
-pub const DOG_CACHE_KEY: &'static str = "dogcache";
 
 pub struct DogCache {
     pub breeds: Vec<DogBreed>

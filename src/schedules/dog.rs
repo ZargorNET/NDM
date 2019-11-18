@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::commands;
 use crate::commands::animal::dog::DogCache;
 use crate::scheduler::ScheduleArguments;
+use crate::util::safe::keys::commands::DOG_CACHE_KEY;
 
 pub fn fetch_dogs(args: ScheduleArguments) {
     let mut ret: Vec<commands::animal::dog::DogBreed> = Vec::new();
@@ -88,7 +89,7 @@ pub fn fetch_dogs(args: ScheduleArguments) {
     }
     ret.shrink_to_fit();
     let mut safe = args.safe.write();
-    safe.store(commands::animal::dog::DOG_CACHE_KEY, DogCache {
+    safe.store(DOG_CACHE_KEY, DogCache {
         breeds: ret
     });
     info!("DOG SCHEDULER: Successfully updated dog cache!");

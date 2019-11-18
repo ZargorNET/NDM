@@ -1,5 +1,6 @@
 use crate::{commands, util};
 use crate::scheduler::ScheduleArguments;
+use crate::util::safe::keys::commands::MEME_CACHE_KEY;
 
 pub fn fetch_memes(args: ScheduleArguments) {
     let mut memes: Vec<commands::fun::meme::Meme> = Vec::new();
@@ -40,5 +41,5 @@ pub fn fetch_memes(args: ScheduleArguments) {
     memes.shrink_to_fit();
     info!("MEME SCHEDULER: Fetched {} memes!", memes.len());
     let mut safe = args.safe.write();
-    safe.store(commands::fun::meme::MEME_CACHE_KEY, memes);
+    safe.store(MEME_CACHE_KEY, memes);
 }

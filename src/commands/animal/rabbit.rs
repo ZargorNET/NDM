@@ -4,8 +4,7 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 use crate::commands::category::Category;
-
-pub const RABBIT_CACHE_KEY: &'static str = "rabbitcache";
+use crate::util::safe::keys::commands::RABBIT_CACHE_KEY;
 
 pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
