@@ -1,6 +1,7 @@
 use crate::{commands, util};
 use crate::commands::animal::aww::Aww;
 use crate::scheduler::ScheduleArguments;
+use crate::util::safe::keys::commands::AWW_CACHE_KEY;
 
 pub fn fetch_aww(args: ScheduleArguments) {
     let mut after: String = "".to_string();
@@ -42,5 +43,5 @@ pub fn fetch_aww(args: ScheduleArguments) {
     ret.shrink_to_fit();
     info!("AWW SCHEDULER: Fetched {} awws", ret.len());
     let mut safe = args.safe.write();
-    safe.store(commands::animal::aww::AWW_CACHE_KEY, ret);
+    safe.store(AWW_CACHE_KEY, ret);
 }

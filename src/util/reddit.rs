@@ -8,7 +8,6 @@ pub fn fetch_reddit_images(url: &str) -> Result<RedditResponse, Box<dyn error::E
     Ok(reddit_res)
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct RedditResponse {
     pub data: RedditResponseData,

@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use crate::scheduler::ScheduleArguments;
+use crate::util::safe::keys::commands::BIRB_CACHE_KEY;
 
 pub fn fetch_birbs(args: ScheduleArguments) {
     let mut glob_birbs: HashSet<String> = HashSet::new();
@@ -40,6 +41,6 @@ pub fn fetch_birbs(args: ScheduleArguments) {
     let mut glob_vec: Vec<String> = glob_birbs.into_iter().collect();
     glob_vec.shrink_to_fit();
     let mut safe = args.safe.write();
-    safe.store(crate::commands::animal::birb::BIRB_CACHE_KEY, glob_vec);
+    safe.store(BIRB_CACHE_KEY, glob_vec);
     info!("BIRB SCHEDULER: Fetched {} birbs!", amount);
 }

@@ -6,13 +6,13 @@ use serenity::cache::Cache;
 use serenity::prelude::RwLock;
 
 use crate::scheduler::ScheduleArguments;
-use crate::SERENITY_CACHE_SAFE_KEY;
+use crate::util::safe::keys::other::SERENITY_CACHE_KEY;
 
 pub fn update_topgg(args: ScheduleArguments) {
     let http_client = reqwest::Client::new();
     let cache;
     {
-        cache = match args.safe.read().get::<Arc<RwLock<Cache>>>(SERENITY_CACHE_SAFE_KEY) {
+        cache = match args.safe.read().get::<Arc<RwLock<Cache>>>(SERENITY_CACHE_KEY) {
             Some(s) => s.clone(),
             None => {
                 error!("TOPGG_UPDATE SCHEDULER: could not get serenity cache");
