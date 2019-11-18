@@ -6,9 +6,9 @@ use serenity::model::prelude::Message;
 use serenity::prelude::{Context, RwLock};
 
 use crate::{StaticSettings, util};
+use crate::commands::category::Category;
 use crate::safe::Safe;
 use crate::scheduler::Scheduler;
-use crate::util::enums::category::Category;
 
 pub struct CommandManager {
     commands: Vec<Command>
@@ -36,12 +36,11 @@ pub struct CommandArguments<'a> {
 
 #[derive(Clone)]
 pub struct Command {
-    pub   key: &'static str,
-    pub   description: &'static str,
-    pub   help_page: &'static str,
-    pub   category: Category,
-    pub   show_on_help: bool,
-    pub   func: fn(args: CommandArguments) -> CommandResult,
+    pub key: &'static str,
+    pub description: &'static str,
+    pub help_page: &'static str,
+    pub category: Category,
+    pub func: fn(args: CommandArguments) -> CommandResult,
 }
 
 
@@ -93,7 +92,7 @@ impl<'a> CommandArguments<'a> {
             safe,
             image,
             settings,
-            command
+            command,
         }
     }
 }

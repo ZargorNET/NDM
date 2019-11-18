@@ -1,14 +1,13 @@
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static HELP_COMMAND: Command = Command {
     key: "help",
     description: "",
     help_page: "",
     category: Category::Misc,
-    show_on_help: false,
     func: help_command,
 };
 
@@ -21,7 +20,9 @@ fn help_command(args: CommandArguments) -> CommandResult {
             eb.title("Help");
             let mut s = String::new();
             for cmd in cmds.into_iter() {
-                if cmd.show_on_help == false { continue; }
+                if cmd.category.show_on_help() == false {
+                    continue;
+                }
                 if cmd.help_page == "" {
                     s.push_str(&format!("``{}{}`` => {}\n", args.settings.read().default_prefix, cmd.key, cmd.description));
                 } else {

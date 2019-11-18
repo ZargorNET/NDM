@@ -1,14 +1,13 @@
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static ABOUT_COMMAND: Command = Command {
     key: "about",
     description: "Shows some info about this bot",
     help_page: "",
     category: Category::Misc,
-    show_on_help: true,
     func: about_command,
 };
 
@@ -25,10 +24,6 @@ pub struct Statistics {
 fn about_command(args: CommandArguments) -> CommandResult {
     let _ = args.m.channel_id.send_message(args.ctx, |cb| {
         cb.embed(|eb| {
-            //eb.description("Hey! I am written in Rust by **ZargorNET** and **Turulix** using serenity-rs.");
-            //eb.field("Invite me!", "[click](https://discordapp.com/oauth2/authorize?client_id=277608782123630593&scope=bot&permissions=8&guild_id=0)", true);
-            //eb.field("Join my server!", "[click](https://discord.gg/CYVjCvV)", true);
-
             let avatar_url;
             let username;
             let member;

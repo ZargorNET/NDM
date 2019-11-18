@@ -3,14 +3,13 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static DOG_COMMAND: Command = Command {
     key: "dog",
     description: "Shows you a dog :)!",
     help_page: "[<optional: breed>]",
     category: Category::Animals,
-    show_on_help: true,
     func: dog_command,
 };
 
@@ -19,23 +18,9 @@ pub static DOG_BREEDS_COMMAND: Command = Command {
     description: "Shows you all available breeds",
     help_page: "",
     category: Category::Animals,
-    show_on_help: true,
+
     func: dog_breed_command,
 };
-
-/*const DOG_SLOGANS: &'static [&'static str] = &[
-    "WHO LET THE DOGS OUT? WOOF WOOF",
-    "MEOW I'M JUST A CAT",
-    "Happiness is a warm puppy :)",
-    "NEED FOOD, GOT FOOD, NEED PETS",
-    "WOOF.",
-    "WOOOF?",
-    "WOOOOOOOOOOOOOOOOOOOOOOOOOOF",
-    "PLEASE PET ME",
-    "i luv you. woof",
-    "where is my hoooman?",
-    "i want pettttssssss"
-];*/
 
 pub const DOG_CACHE_KEY: &'static str = "dogcache";
 
@@ -91,10 +76,6 @@ fn dog_command(args: CommandArguments) -> CommandResult {
     let _ = args.m.channel_id.send_message(args.ctx, |cb| {
         cb.embed(|mut eb| {
             eb.title("Woofy boy!");
-            //let mut ran = rand::thread_rng();
-            //let index = ran.gen_range(0, DOG_SLOGANS.len());
-            //eb.description(DOG_SLOGANS[index]);
-            //eb.field("DOGS VS CATS", "Registered vote for DOGS! ``#dcwar``", true);
             eb.image(dog_url);
 
             commands::util::add_footer(&mut eb, &args);
@@ -105,8 +86,6 @@ fn dog_command(args: CommandArguments) -> CommandResult {
         });
         cb
     });
-
-    //super::add_dog_sup(&args);
 
     Ok(true)
 }

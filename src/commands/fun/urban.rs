@@ -2,14 +2,13 @@ use serenity::http::AttachmentType;
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static URBAN_COMMAND: Command = Command {
     key: "urban",
     description: "Searches a term on UrbanDictionary",
     help_page: "<term>",
     category: Category::Fun,
-    show_on_help: true,
     func: urban_command,
 };
 
@@ -17,8 +16,6 @@ pub static URBAN_COMMAND: Command = Command {
 struct FullUrbanResponse {
     list: Vec<UrbanResponse>
 }
-
-
 
 #[derive(Serialize, Deserialize)]
 struct UrbanResponse {

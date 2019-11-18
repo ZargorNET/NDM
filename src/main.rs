@@ -181,7 +181,6 @@ fn main() {
         command_handler.register_command(commands::animal::cat::CAT_COMMAND.clone());
         command_handler.register_command(commands::animal::dog::DOG_COMMAND.clone());
         command_handler.register_command(commands::animal::dog::DOG_BREEDS_COMMAND.clone());
-        //command_handler.register_command(commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND.clone());
         command_handler.register_command(commands::fun::meme::MEME_COMMAND.clone());
         command_handler.register_command(commands::about::ABOUT_COMMAND.clone());
         command_handler.register_command(commands::fun::urban::URBAN_COMMAND.clone());
