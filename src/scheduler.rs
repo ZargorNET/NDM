@@ -16,6 +16,7 @@ pub struct ScheduleArguments {
 
 pub struct Scheduler {
     schedules: Arc<RwLock<Vec<Schedule>>>,
+    start_delay_millis: u64,
 }
 
 #[derive(Clone)]
@@ -27,9 +28,10 @@ struct Schedule {
 }
 
 impl Scheduler {
-    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>) -> Arc<RwLock<Scheduler>> {
+    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, start_delay_millis: u64) -> Arc<RwLock<Scheduler>> {
         let s: Arc<RwLock<Scheduler>> = Arc::new(RwLock::new(Scheduler {
-            schedules: Arc::new(RwLock::new(Vec::new()))
+            schedules: Arc::new(RwLock::new(Vec::new())),
+            start_delay_millis
         }));
 
         s.read().start_schedule(cmd_handler, safe, Arc::clone(&s));
@@ -70,7 +72,11 @@ impl Scheduler {
     fn start_schedule(&self, command_manager: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, scheduler: Arc<RwLock<Scheduler>>) {
         let schedules = Arc::clone(&self.schedules);
         let cmd_manager = Arc::clone(&command_manager);
+        let start_delay_millis = self.start_delay_millis;
+
         std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(start_delay_millis));
+
             let schedules = schedules;
             let cmd_manager = cmd_manager;
             let safe = safe;
@@ -89,11 +95,19 @@ impl Scheduler {
                         let tm_cmd_manager = Arc::clone(&cmd_manager);
                         let tm_safe = Arc::clone(&safe);
                         let tm_scheduler = Arc::clone(&scheduler);
-                        (schedule.function)(ScheduleArguments {
-                            command_manager: tm_cmd_manager,
-                            safe: tm_safe,
-                            scheduler: tm_scheduler,
-                        });
+
+                        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                            (schedule.function)(ScheduleArguments {
+                                command_manager: tm_cmd_manager,
+                                safe: tm_safe,
+                                scheduler: tm_scheduler,
+                            });
+                        })
+                        );
+                        match res {
+                            Ok(_) => {},
+                            Err(_e) => error!("SCHEDULER: caught unwind from scheduler thread")
+                        }
                     }
                 }
 
