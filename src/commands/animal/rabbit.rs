@@ -3,14 +3,15 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
+use crate::commands::category::Category;
 
 pub const RABBIT_CACHE_KEY: &'static str = "rabbitcache";
 
 pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
     description: "Gets you an hoppyboi",
-    help_page: "#rabbit",
-    category: "Animals",
+    help_page: "",
+    category: Category::Animals,
     func: rabbit_command,
 };
 

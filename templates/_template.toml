@@ -6,7 +6,7 @@
 # Supported extensions for images: .jpg .jpeg .png
 # Enjoy
 
-name = "your_name" # The template file which will be the key to generate your image
+name = "your_name" # The template file, which will be the key to generate your image
 
 # This is entirely optional.
 # If it exists, you don't need to have a base image. In fact, it even will be ignored.
@@ -14,19 +14,19 @@ name = "your_name" # The template file which will be the key to generate your im
 w = 300 # Width of the base image
 h = 300 # Height of the base image
 
-# Now to the features: A feature is a part of an image which are required to be fulfilled when generating/building the image (exception "image" because you have to specify this argument here).
+# Now to the features: A feature is a part of an image, which is required to be fulfilled when generating/building the image (exception "image" because you have to specify this argument here).
 # The features will be processed in specified order here.
 # For every currently supported feature, you'll find an entry here.
 
 [[features]]
 key = "key" # The key should be unique. If not, it will share one to-fulfill argument with it's evenly-named partner.
-kind = "user_image" # An user image. The user has to specify the @User#1234 in his arguments
+kind = "user_image" # An user image. The user has to specify the @User#1234 in his arguments.
 default_user = true # This is optional and defaults to "false". If true, user don't have to specify this @User; it will default to the author's image. Attention: If using, this feature needs to be the first!
 x = 0 # The x coordinate of the upper left corner of the bounding box
 y = 0 # The y coordinate of the upper left corner of the bounding box
 w = 300 # The bounding box width
 h = 300 # The bounding box height
-grayscale = true # This is optional and defaults to "false". If true, this image will be grayed. Works on every image feature
+grayscale = true # This is optional and defaults to "false". If true, this image will be grayed. Works on every image feature.
 
 [[features]]
 key = "jailbars"

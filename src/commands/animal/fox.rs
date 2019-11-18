@@ -2,12 +2,13 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
+use crate::commands::category::Category;
 
 pub static FOX_COMMAND: Command = Command {
     key: "fox",
     description: "Gives you random fox",
-    help_page: "#fox",
-    category: "Animals",
+    help_page: "",
+    category: Category::Animals,
     func: fox_command,
 };
 
@@ -20,7 +21,6 @@ fn fox_command(args: CommandArguments) -> CommandResult {
         mb.embed(|mut eb| {
             eb.title("Look! A foxy boy!");
             eb.color(Colour::from_rgb(255, 104, 0));
-            eb.description("We will never know if it's just a Fury");
             eb.image(fox.image);
 
             commands::util::add_timestamp(&mut eb);

@@ -4,12 +4,13 @@ use serenity::http::AttachmentType;
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::commands::category::Category;
 
 pub static URBANMUG_COMMAND: Command = Command {
     key: "urbanmug",
     description: "Gets a nice mug",
-    help_page: "#urban <text>",
-    category: "Fun",
+    help_page: "<text>",
+    category: Category::Fun,
     func: mug_command,
 };
 
@@ -30,8 +31,8 @@ fn mug_command(args: CommandArguments) -> CommandResult {
             eb.color(Colour::from_rgb(239, 255, 0));
             eb.image("attachment://urban_mug.jpg");
 
-            super::util::add_timestamp(&mut eb);
-            super::util::add_footer(&mut eb, &args);
+            super::super::util::add_timestamp(&mut eb);
+            super::super::util::add_footer(&mut eb, &args);
 
             eb
         });

@@ -1,0 +1,11 @@
+name = "abandon"
+
+[[features]]
+key = "reason"
+kind = "text"
+x = 25
+y = 413
+w = 320
+h = 120
+font_size = 44
+font_color = [0,0,0,255]

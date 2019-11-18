@@ -86,7 +86,7 @@ pub fn fetch_dogs(args: ScheduleArguments) {
             });
         }
     }
-
+    ret.shrink_to_fit();
     let mut safe = args.safe.write();
     safe.store(commands::animal::dog::DOG_CACHE_KEY, DogCache {
         breeds: ret

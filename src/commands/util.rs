@@ -21,6 +21,18 @@ pub fn add_footer<'a>(ceb: &'a mut CreateEmbed, args: &CommandArguments) -> &'a 
     ceb
 }
 
+pub fn add_footer_text<'a>(ceb: &'a mut CreateEmbed, args: &CommandArguments, text: String) -> &'a mut CreateEmbed {
+    ceb.footer(|fb| {
+        fb.text(format!("{}  •  {}", &args.m.author.name, text).to_string());
+        if let Some(avatar) = &args.m.author.avatar_url() {
+            fb.icon_url(avatar);
+        }
+        fb
+    });
+    ceb
+}
+
+
 pub fn add_timestamp(ceb: &mut CreateEmbed) -> &mut CreateEmbed {
     let now: DateTime<Utc> = Utc::now();
     ceb.timestamp(now.to_rfc3339());
