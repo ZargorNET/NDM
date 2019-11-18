@@ -45,7 +45,7 @@ impl Handler {
     fn new(ch: CommandManager, image: Arc<util::image::ImageStorage>) -> Handler {
         let ch = Arc::new(RwLock::new(ch));
         let safe = Arc::new(RwLock::new(Safe::new()));
-        let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe));
+        let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe), 20000);
         let settings = Arc::new(RwLock::new(StaticSettings {
             default_prefix: "+".to_string(),
             start_time: Utc::now(),
@@ -137,19 +137,8 @@ impl EventHandler for Handler {
 
     fn ready(&self, ctx: Context, _red: Ready) {
         { self.safe.write().store(SERENITY_CACHE_SAFE_KEY, Arc::clone(&ctx.cache)); }
-
-        let scheduler = Arc::clone(&self.scheduler);
-        let mut scheduler = scheduler.write();
-        scheduler.clear_all();
-        scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
-        scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
-        scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
-        scheduler.schedule_repeated(1 * 60 * 60, schedules::update_topgg); // EVERY 1 HOUR
         self.update_activity(&ctx);
-        info!("Bot started!");
+        info!("Shard {} started!", ctx.shard_id);
     }
 }
 
@@ -198,9 +187,24 @@ fn main() {
             info!("Registered command: {}", command.key);
         }
     }
+    let handler = Handler::new(command_handler, images);
+    start_scheduler(&handler);
 
     // START CLIENT
     info!("Starting client");
-    let mut client = Client::new(&discord_token, Handler::new(command_handler, images)).expect("Could not create Client");
+    let mut client = Client::new(&discord_token, handler).expect("Could not create Client");
     client.start_shards(2).expect("Could not start discord client");
+}
+
+fn start_scheduler(handler: &Handler) {
+    let scheduler = Arc::clone(&handler.scheduler);
+    let mut scheduler = scheduler.write();
+    scheduler.clear_all();
+    scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
+    scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
+    scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
+    scheduler.schedule_repeated(1 * 60 * 60, schedules::update_topgg); // EVERY 1 HOUR
 }
