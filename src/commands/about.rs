@@ -62,7 +62,7 @@ fn about_command(args: CommandArguments) -> CommandResult {
                 ✅ Memes\n\
                 ✅ Nsfw ;)\n\
                 ✅ Administration Commands\n\
-                ```", username, args.settings.read().default_prefix));
+                ```", username, args.settings.default_prefix));
 
 
             let statistics;
@@ -85,7 +85,7 @@ fn about_command(args: CommandArguments) -> CommandResult {
             eb.footer(|f| {
                 f.text("Last restart")
             });
-            eb.timestamp(args.settings.read().start_time.to_rfc3339());
+            eb.timestamp(args.settings.start_time.to_rfc3339());
             eb
         })
     });

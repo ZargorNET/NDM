@@ -29,9 +29,9 @@ pub(super) fn print_cmds(args: &CommandArguments, cmds: Vec<Command>, title: &st
             let mut s = String::new();
             for cmd in cmds.into_iter() {
                 if cmd.help_page == "" {
-                    s.push_str(&format!("``{}{}`` => {}\n", args.settings.read().default_prefix, cmd.key, cmd.description));
+                    s.push_str(&format!("``{}{}`` => {}\n", args.settings.default_prefix, cmd.key, cmd.description));
                 } else {
-                    s.push_str(&format!("``{}{} {}`` => {}\n", args.settings.read().default_prefix, cmd.key, cmd.help_page, cmd.description));
+                    s.push_str(&format!("``{}{} {}`` => {}\n", args.settings.default_prefix, cmd.key, cmd.help_page, cmd.description));
                 }
             }
             eb.description(s);

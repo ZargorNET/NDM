@@ -30,7 +30,7 @@ pub struct CommandArguments<'a> {
     pub scheduler: ArcScheduler,
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
-    pub settings: Arc<RwLock<StaticSettings>>,
+    pub settings: Arc<StaticSettings>,
     pub command: &'a Command,
 }
 
@@ -83,7 +83,7 @@ impl CommandManager {
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: ArcScheduler, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<RwLock<StaticSettings>>, command: &'a Command) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: ArcScheduler, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<StaticSettings>, command: &'a Command) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,

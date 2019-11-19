@@ -27,8 +27,8 @@ mod commands;
 mod schedules;
 
 pub struct StaticSettings {
-    default_prefix: String,
-    start_time: DateTime<Utc>,
+    pub default_prefix: String,
+    pub start_time: DateTime<Utc>,
 }
 
 struct Handler {
@@ -36,7 +36,7 @@ struct Handler {
     scheduler: ArcScheduler,
     safe: Arc<RwLock<Safe>>,
     image: Arc<util::image::ImageStorage>,
-    settings: Arc<RwLock<StaticSettings>>,
+    settings: Arc<StaticSettings>,
 }
 
 impl Handler {
@@ -44,10 +44,10 @@ impl Handler {
         let ch = Arc::new(RwLock::new(ch));
         let safe = Arc::new(RwLock::new(Safe::new()));
         let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe), 20000);
-        let settings = Arc::new(RwLock::new(StaticSettings {
+        let settings = Arc::new(StaticSettings {
             default_prefix: "+".to_string(),
             start_time: Utc::now(),
-        }));
+        });
 
         Handler {
             ch,
@@ -61,7 +61,7 @@ impl Handler {
 
 impl Handler {
     fn update_activity(&self, ctx: &Context) {
-        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), self.settings.read().default_prefix)));
+        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), self.settings.default_prefix)));
     }
 }
 
@@ -86,7 +86,7 @@ impl EventHandler for Handler {
 
         info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
         //TODO: Server config prefix
-        if !msg.content.starts_with(&self.settings.read().default_prefix) {
+        if !msg.content.starts_with(&self.settings.default_prefix) {
             return;
         }
 
@@ -118,7 +118,7 @@ impl EventHandler for Handler {
                     } else {
                         let _ = msg.react(&ctx, ReactionType::from("❌"));
                         let _ = msg.channel_id.send_message(&ctx, |eb| {
-                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", self.settings.read().default_prefix, cmd.key, cmd.help_page));
+                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", self.settings.default_prefix, cmd.key, cmd.help_page));
                             eb
                         });
                     }
