@@ -7,7 +7,6 @@ use serenity::prelude::{Context, RwLock};
 
 use crate::{StaticSettings, util};
 use crate::commands::category::Category;
-use crate::scheduler::ArcScheduler;
 use crate::util::safe::Safe;
 
 pub struct CommandManager {
@@ -27,7 +26,6 @@ pub struct CommandArguments<'a> {
     pub ctx: &'a Context,
     pub m: &'a Message,
     pub handler: Arc<RwLock<CommandManager>>,
-    pub scheduler: ArcScheduler,
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
     pub settings: Arc<StaticSettings>,
@@ -83,12 +81,11 @@ impl CommandManager {
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: ArcScheduler, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<StaticSettings>, command: &'a Command) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<StaticSettings>, command: &'a Command) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
             handler,
-            scheduler,
             safe,
             image,
             settings,

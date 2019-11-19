@@ -2,24 +2,13 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use reqwest::StatusCode;
-use serenity::cache::Cache;
-use serenity::prelude::RwLock;
 
 use crate::scheduler::ScheduleArguments;
-use crate::util::safe::keys::other::SERENITY_CACHE_KEY;
 
 pub fn update_topgg(args: ScheduleArguments) {
     let http_client = reqwest::Client::new();
-    let cache;
-    {
-        cache = match args.safe.read().get::<Arc<RwLock<Cache>>>(SERENITY_CACHE_KEY) {
-            Some(s) => s.clone(),
-            None => {
-                error!("TOPGG_UPDATE SCHEDULER: could not get serenity cache");
-                return;
-            }
-        };
-    } // DROP LOCK
+    let cache = Arc::clone(&args.serenity.cache);
+
     let cache = cache.read();
     use std::env::var;
     let topgg_token = match var("TOP_GG_TOKEN") {

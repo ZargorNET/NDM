@@ -6,7 +6,3 @@ pub mod commands {
     pub const DOG_CACHE_KEY: &'static str = "DOG";
     pub const RABBIT_CACHE_KEY: &'static str = "RABBIT";
 }
-
-pub mod other {
-    pub const SERENITY_CACHE_KEY: &'static str = "SERENITY";
-}

@@ -15,8 +15,7 @@ use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
-use crate::scheduler::{ArcScheduler, Scheduler};
-use crate::util::safe::keys::other::SERENITY_CACHE_KEY;
+use crate::scheduler::Scheduler;
 use crate::util::safe::Safe;
 
 mod util;
@@ -33,17 +32,13 @@ pub struct StaticSettings {
 
 struct Handler {
     ch: Arc<RwLock<CommandManager>>,
-    scheduler: ArcScheduler,
     safe: Arc<RwLock<Safe>>,
     image: Arc<util::image::ImageStorage>,
     settings: Arc<StaticSettings>,
 }
 
 impl Handler {
-    fn new(ch: CommandManager, image: Arc<util::image::ImageStorage>) -> Handler {
-        let ch = Arc::new(RwLock::new(ch));
-        let safe = Arc::new(RwLock::new(Safe::new()));
-        let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe), 20000);
+    fn new(ch: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>) -> Handler {
         let settings = Arc::new(StaticSettings {
             default_prefix: "+".to_string(),
             start_time: Utc::now(),
@@ -51,7 +46,6 @@ impl Handler {
 
         Handler {
             ch,
-            scheduler,
             safe,
             image,
             settings,
@@ -107,7 +101,6 @@ impl EventHandler for Handler {
             let args = CommandArguments::new(&ctx,
                                              &msg,
                                              Arc::clone(&self.ch),
-                                             Arc::clone(&self.scheduler),
                                              Arc::clone(&self.safe),
                                              Arc::clone(&self.image),
                                              Arc::clone(&self.settings), &cmd);
@@ -134,12 +127,6 @@ impl EventHandler for Handler {
 
 
     fn ready(&self, ctx: Context, _red: Ready) {
-        {
-            let exists = self.safe.read().exists(SERENITY_CACHE_KEY);
-            if !exists {
-                self.safe.write().store(SERENITY_CACHE_KEY, Arc::clone(&ctx.cache));
-            }
-        }
         self.update_activity(&ctx);
         info!("Shard {} started!", ctx.shard_id);
     }
@@ -191,17 +178,22 @@ fn main() {
             info!("Registered command: {}", command.key);
         }
     }
-    let handler = Handler::new(command_handler, images);
-    start_scheduler(&handler);
+    let command_handler = Arc::new(RwLock::new(command_handler));
+    let safe = Arc::new(RwLock::new(Safe::new()));
+
+    let handler = Handler::new(Arc::clone(&command_handler), Arc::clone(&safe), images);
 
     // START CLIENT
     info!("Starting client");
     let mut client = Client::new(&discord_token, handler).expect("Could not create Client");
+
+    let scheduler = Scheduler::new(Arc::clone(&command_handler), Arc::clone(&safe), Arc::clone(&client.cache_and_http));
+    start_scheduler(&scheduler);
+
     client.start_shards(2).expect("Could not start discord client");
 }
 
-fn start_scheduler(handler: &Handler) {
-    let scheduler = Arc::clone(&handler.scheduler);
+fn start_scheduler(scheduler: &Scheduler) {
     scheduler.clear_all();
     scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
     scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES

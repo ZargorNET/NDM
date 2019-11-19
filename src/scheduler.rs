@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use chrono::{DateTime, TimeZone, Utc};
+use serenity::CacheAndHttp;
 use serenity::prelude::RwLock;
 
 use crate::command_framework::CommandManager;
@@ -13,11 +14,11 @@ pub struct ScheduleArguments {
     pub command_manager: Arc<RwLock<CommandManager>>,
     pub safe: Arc<RwLock<Safe>>,
     pub scheduler: Arc<Scheduler>,
+    pub serenity: Arc<CacheAndHttp>,
 }
 
 pub struct Scheduler {
     schedules: Arc<RwLock<Vec<Schedule>>>,
-    start_delay_millis: u64,
 }
 
 #[derive(Clone)]
@@ -29,13 +30,12 @@ struct Schedule {
 }
 
 impl Scheduler {
-    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, start_delay_millis: u64) -> ArcScheduler {
+    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, serenity: Arc<CacheAndHttp>) -> ArcScheduler {
         let s = Arc::new(Scheduler {
             schedules: Arc::new(RwLock::new(Vec::new())),
-            start_delay_millis
         });
 
-        s.start_schedule(cmd_handler, safe, Arc::clone(&s));
+        s.start_schedule(cmd_handler, safe, Arc::clone(&s), Arc::clone(&serenity));
         s
     }
 
@@ -70,18 +70,16 @@ impl Scheduler {
         schedules.shrink_to_fit();
     }
 
-    fn start_schedule(&self, command_manager: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, scheduler: Arc<Scheduler>) {
+    fn start_schedule(&self, command_manager: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, scheduler: Arc<Scheduler>, serenity: Arc<CacheAndHttp>) {
         let schedules = Arc::clone(&self.schedules);
         let cmd_manager = Arc::clone(&command_manager);
-        let start_delay_millis = self.start_delay_millis;
 
         std::thread::spawn(move || {
-            std::thread::sleep(std::time::Duration::from_millis(start_delay_millis));
-
             let schedules = schedules;
             let cmd_manager = cmd_manager;
             let safe = safe;
             let scheduler = scheduler;
+            let serenity = serenity;
 
             loop {
                 let mut schedules = schedules.write();
@@ -96,12 +94,14 @@ impl Scheduler {
                         let tm_cmd_manager = Arc::clone(&cmd_manager);
                         let tm_safe = Arc::clone(&safe);
                         let tm_scheduler = Arc::clone(&scheduler);
+                        let tm_serenity = Arc::clone(&serenity);
 
                         let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                             (schedule.function)(ScheduleArguments {
                                 command_manager: tm_cmd_manager,
                                 safe: tm_safe,
                                 scheduler: tm_scheduler,
+                                serenity: tm_serenity,
                             });
                         })
                         );
