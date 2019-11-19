@@ -3,7 +3,7 @@ use std::fmt::Display;
 use serde::export::fmt::Error;
 use serde::export::Formatter;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Category {
     GeneratedImage,
     Fun,

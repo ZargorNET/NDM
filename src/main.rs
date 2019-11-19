@@ -183,6 +183,7 @@ fn main() {
         command_handler.register_command(commands::animal::rabbit::RABBIT_COMMAND.clone());
         command_handler.register_command(commands::animal::aww::AWW_COMMAND.clone());
         command_handler.register_command(commands::fun::love::LOVE_COMMAND.clone());
+        command_handler.register_command(commands::make::MAKE_COMMAND.clone());
 
         commands::image_gen::command_gen::register_images(&mut command_handler, images.as_ref());
 
