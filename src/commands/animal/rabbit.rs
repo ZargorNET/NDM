@@ -4,7 +4,6 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 use crate::commands::category::Category;
-use crate::util::safe::keys::commands::RABBIT_CACHE_KEY;
 
 pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
@@ -19,7 +18,7 @@ fn rabbit_command(args: CommandArguments) -> CommandResult {
 
     {
         let safe = args.safe.read();
-        let rabbits = match safe.get::<Vec<Rabbit>>(RABBIT_CACHE_KEY) {
+        let rabbits = match safe.get::<Vec<Rabbit>>() {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no rabbits fetched yet :c Try again later :rabbit2:");

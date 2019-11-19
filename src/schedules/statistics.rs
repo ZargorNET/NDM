@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use crate::commands::about::Statistics;
 use crate::scheduler::ScheduleArguments;
-use crate::util::safe::keys::commands::STATISTICS_CACHE_KEY;
 
 pub fn update_statistics(args: ScheduleArguments) {
     let cache = Arc::clone(&args.serenity.cache);
@@ -28,7 +27,7 @@ pub fn update_statistics(args: ScheduleArguments) {
         num_users: users as u32,
     };
 
-    args.safe.write().store(STATISTICS_CACHE_KEY, statistics);
+    args.safe.write().store(statistics);
 
     info!("STATISTIC SCHEDULER: Successfully updated statistics!");
 }

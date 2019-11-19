@@ -4,7 +4,6 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 use crate::commands::category::Category;
-use crate::util::safe::keys::commands::DOG_CACHE_KEY;
 
 pub static DOG_COMMAND: Command = Command {
     key: "dog",
@@ -45,7 +44,7 @@ fn dog_command(args: CommandArguments) -> CommandResult {
 
     {
         let safe = args.safe.read();
-        let dog_cache = match safe.get::<DogCache>(DOG_CACHE_KEY) {
+        let dog_cache = match safe.get::<DogCache>() {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no dogs cached yet! Please try again later :dog2:");
@@ -94,7 +93,7 @@ fn dog_breed_command(args: CommandArguments) -> CommandResult {
 
     {
         let safe = args.safe.read();
-        let dog_cache = match safe.get::<DogCache>(DOG_CACHE_KEY) {
+        let dog_cache = match safe.get::<DogCache>() {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no dog breeds cached yet! Please try again later");

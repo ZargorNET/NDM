@@ -2,7 +2,6 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands::category::Category;
-use crate::util::safe::keys::commands::STATISTICS_CACHE_KEY;
 
 pub static ABOUT_COMMAND: Command = Command {
     key: "about",
@@ -67,7 +66,7 @@ fn about_command(args: CommandArguments) -> CommandResult {
 
             let statistics;
             {
-                statistics = match args.safe.read().get::<Statistics>(STATISTICS_CACHE_KEY) {
+                statistics = match args.safe.read().get::<Statistics>() {
                     Some(s) => Some(s.clone()),
                     None => {
                         eb.field("Statistics not available", "", true);

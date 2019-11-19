@@ -1,7 +1,6 @@
 use crate::{commands, util};
 use crate::commands::animal::rabbit::Rabbit;
 use crate::scheduler::ScheduleArguments;
-use crate::util::safe::keys::commands::RABBIT_CACHE_KEY;
 
 pub fn fetch_rabbits(args: ScheduleArguments) {
     let mut ret: Vec<commands::animal::rabbit::Rabbit> = Vec::new();
@@ -40,5 +39,5 @@ pub fn fetch_rabbits(args: ScheduleArguments) {
     info!("RABBIT SCHEDULER: Successfully fetched {} rabbits!", ret.len());
 
     let mut safe = args.safe.write();
-    safe.store(RABBIT_CACHE_KEY, ret);
+    safe.store(ret);
 }

@@ -4,7 +4,6 @@ use serenity::utils::Colour;
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
 use crate::commands::category::Category;
-use crate::util::safe::keys::commands::BIRB_CACHE_KEY;
 
 pub static BIRB_COMMAND: Command = Command {
     key: "birb",
@@ -26,7 +25,7 @@ fn birb_command(args: CommandArguments) -> CommandResult {
     let random_birb;
     {
         let safe = args.safe.read();
-        let birb_cache = match safe.get::<Vec<String>>(BIRB_CACHE_KEY) {
+        let birb_cache = match safe.get::<Vec<String>>() {
             Some(ks) => ks,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no birbs cached yet! Please try again later :)! :bird:");
