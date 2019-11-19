@@ -2,14 +2,13 @@ use rand::{Rng, SeedableRng};
 use serenity::model::guild::Member;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static LOVE_COMMAND: Command = Command {
     key: "love",
     description: "Its a match! maybe.",
     help_page: "[<optional: lover>] <loved: @User>",
     category: Category::Fun,
-    show_on_help: true,
     func: love_command,
 };
 
@@ -19,8 +18,8 @@ fn love_command(args: CommandArguments) -> CommandResult {
         cache = args.ctx.cache.read().clone();
     } // Drop Lock
 
-    let mut user1: Member;
-    let mut user2: Member;
+    let user1: Member;
+    let user2: Member;
 
     match args.m.mentions.len() {
         0 => {
@@ -40,7 +39,7 @@ fn love_command(args: CommandArguments) -> CommandResult {
     if user1.user.read().id.0 == user2.user.read().id.0 {
         rnd = 101;
     }
-    args.m.channel_id.send_message(args.ctx, |f| {
+    let _ = args.m.channel_id.send_message(args.ctx, |f| {
         let mut message;
         if rnd < 45 {
             message = "Dude get someone else than that.";

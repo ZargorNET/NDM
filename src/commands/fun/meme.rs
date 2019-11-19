@@ -3,14 +3,13 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static MEME_COMMAND: Command = Command {
     key: "meme",
     description: "Gets a random meme",
     help_page: "",
     category: Category::Fun,
-    show_on_help: true,
     func: meme_command,
 };
 
@@ -23,11 +22,9 @@ pub struct Meme {
     pub upvotes: u32,
 }
 
-pub const MEME_CACHE_KEY: &'static str = "memecache";
-
 fn meme_command(args: CommandArguments) -> CommandResult {
     let safe = args.safe.read();
-    let meme_cache = safe.get::<Vec<Meme>>(MEME_CACHE_KEY);
+    let meme_cache = safe.get::<Vec<Meme>>();
 
     if meme_cache.is_none() {
         let _ = args.m.channel_id.say(args.ctx, "No memes fetched yet! Try again later");

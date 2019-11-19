@@ -3,16 +3,13 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
-use crate::util::enums::category::Category;
-
-pub const AWW_CACHE_KEY: &'static str = "awwcache";
+use crate::commands::category::Category;
 
 pub static AWW_COMMAND: Command = Command {
     key: "aww",
     description: "r/aww",
     help_page: "",
     category: Category::Animals,
-    show_on_help: true,
     func: aww_command,
 };
 
@@ -21,7 +18,7 @@ fn aww_command(args: CommandArguments) -> CommandResult {
 
     {
         let safe = args.safe.read();
-        let awws = match safe.get::<Vec<Aww>>(AWW_CACHE_KEY) {
+        let awws = match safe.get::<Vec<Aww>>() {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry! No awws fetched yet :c Please try again later :dog2:");

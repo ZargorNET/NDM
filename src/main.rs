@@ -15,45 +15,37 @@ use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
-use crate::safe::Safe;
 use crate::scheduler::Scheduler;
+use crate::util::safe::Safe;
 
 mod util;
-mod safe;
 mod scheduler;
 #[macro_use]
 mod command_framework;
 mod commands;
 mod schedules;
 
-pub const SERENITY_CACHE_SAFE_KEY: &'static str = "SERENITY_CACHE";
-
 pub struct StaticSettings {
-    default_prefix: String,
-    start_time: DateTime<Utc>,
+    pub default_prefix: String,
+    pub start_time: DateTime<Utc>,
 }
 
 struct Handler {
     ch: Arc<RwLock<CommandManager>>,
-    scheduler: Arc<RwLock<Scheduler>>,
     safe: Arc<RwLock<Safe>>,
     image: Arc<util::image::ImageStorage>,
-    settings: Arc<RwLock<StaticSettings>>,
+    settings: Arc<StaticSettings>,
 }
 
 impl Handler {
-    fn new(ch: CommandManager, image: Arc<util::image::ImageStorage>) -> Handler {
-        let ch = Arc::new(RwLock::new(ch));
-        let safe = Arc::new(RwLock::new(Safe::new()));
-        let scheduler = Scheduler::new(Arc::clone(&ch), Arc::clone(&safe));
-        let settings = Arc::new(RwLock::new(StaticSettings {
+    fn new(ch: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>) -> Handler {
+        let settings = Arc::new(StaticSettings {
             default_prefix: "+".to_string(),
             start_time: Utc::now(),
-        }));
+        });
 
         Handler {
             ch,
-            scheduler,
             safe,
             image,
             settings,
@@ -63,7 +55,7 @@ impl Handler {
 
 impl Handler {
     fn update_activity(&self, ctx: &Context) {
-        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), self.settings.read().default_prefix)));
+        ctx.set_activity(Activity::playing(&format!("on {} servers! | {}help", ctx.cache.read().all_guilds().len(), self.settings.default_prefix)));
     }
 }
 
@@ -88,7 +80,7 @@ impl EventHandler for Handler {
 
         info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
         //TODO: Server config prefix
-        if !msg.content.starts_with(&self.settings.read().default_prefix) {
+        if !msg.content.starts_with(&self.settings.default_prefix) {
             return;
         }
 
@@ -109,7 +101,6 @@ impl EventHandler for Handler {
             let args = CommandArguments::new(&ctx,
                                              &msg,
                                              Arc::clone(&self.ch),
-                                             Arc::clone(&self.scheduler),
                                              Arc::clone(&self.safe),
                                              Arc::clone(&self.image),
                                              Arc::clone(&self.settings), &cmd);
@@ -120,7 +111,7 @@ impl EventHandler for Handler {
                     } else {
                         let _ = msg.react(&ctx, ReactionType::from("❌"));
                         let _ = msg.channel_id.send_message(&ctx, |eb| {
-                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", self.settings.read().default_prefix, cmd.key, cmd.help_page));
+                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", self.settings.default_prefix, cmd.key, cmd.help_page));
                             eb
                         });
                     }
@@ -136,20 +127,8 @@ impl EventHandler for Handler {
 
 
     fn ready(&self, ctx: Context, _red: Ready) {
-        { self.safe.write().store(SERENITY_CACHE_SAFE_KEY, Arc::clone(&ctx.cache)); }
-
-        let scheduler = Arc::clone(&self.scheduler);
-        let mut scheduler = scheduler.write();
-        scheduler.clear_all();
-        scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
-        scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
-        scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
-        scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
-        scheduler.schedule_repeated(1 * 60 * 60, schedules::update_topgg); // EVERY 1 HOUR
         self.update_activity(&ctx);
-        info!("Bot started!");
+        info!("Shard {} started!", ctx.shard_id);
     }
 }
 
@@ -181,7 +160,6 @@ fn main() {
         command_handler.register_command(commands::animal::cat::CAT_COMMAND.clone());
         command_handler.register_command(commands::animal::dog::DOG_COMMAND.clone());
         command_handler.register_command(commands::animal::dog::DOG_BREEDS_COMMAND.clone());
-        //command_handler.register_command(commands::animal::dog_cat_war::DOG_CAT_WAR_COMMAND.clone());
         command_handler.register_command(commands::fun::meme::MEME_COMMAND.clone());
         command_handler.register_command(commands::about::ABOUT_COMMAND.clone());
         command_handler.register_command(commands::fun::urban::URBAN_COMMAND.clone());
@@ -192,6 +170,7 @@ fn main() {
         command_handler.register_command(commands::animal::rabbit::RABBIT_COMMAND.clone());
         command_handler.register_command(commands::animal::aww::AWW_COMMAND.clone());
         command_handler.register_command(commands::fun::love::LOVE_COMMAND.clone());
+        command_handler.register_command(commands::make::MAKE_COMMAND.clone());
 
         commands::image_gen::command_gen::register_images(&mut command_handler, images.as_ref());
 
@@ -199,9 +178,28 @@ fn main() {
             info!("Registered command: {}", command.key);
         }
     }
+    let command_handler = Arc::new(RwLock::new(command_handler));
+    let safe = Arc::new(RwLock::new(Safe::new()));
+
+    let handler = Handler::new(Arc::clone(&command_handler), Arc::clone(&safe), images);
 
     // START CLIENT
     info!("Starting client");
-    let mut client = Client::new(&discord_token, Handler::new(command_handler, images)).expect("Could not create Client");
-    client.start_shards(2).expect("Could not start discord client");
+    let mut client = Client::new(&discord_token, handler).expect("Could not create Client");
+
+    let scheduler = Scheduler::new(Arc::clone(&command_handler), Arc::clone(&safe), Arc::clone(&client.cache_and_http));
+    start_scheduler(&scheduler);
+
+    client.start_autosharded().expect("Could not start discord client");
+}
+
+fn start_scheduler(scheduler: &Scheduler) {
+    scheduler.clear_all();
+    scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
+    scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_dogs); // EVERY 24 HOURS
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_birbs); // EVERY 24 HOURS
+    scheduler.schedule_repeated(24 * 60 * 60, schedules::fetch_rabbits); // EVERY 24 HOURS
+    scheduler.schedule_repeated(12 * 60 * 60, schedules::fetch_aww); // EVERY 12 HOURS
+    scheduler.schedule_repeated(1 * 60 * 60, schedules::update_topgg); // EVERY 1 HOUR
 }

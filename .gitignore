@@ -2,6 +2,7 @@
 **/*.rs.bk
 Cargo.lock
 latest.log
+.idea/
 
 # User-specific stuff
 .idea/**/workspace.xml

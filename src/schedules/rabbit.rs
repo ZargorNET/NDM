@@ -39,5 +39,5 @@ pub fn fetch_rabbits(args: ScheduleArguments) {
     info!("RABBIT SCHEDULER: Successfully fetched {} rabbits!", ret.len());
 
     let mut safe = args.safe.write();
-    safe.store(commands::animal::rabbit::RABBIT_CACHE_KEY, ret);
+    safe.store(ret);
 }

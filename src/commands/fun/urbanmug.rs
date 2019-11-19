@@ -4,14 +4,13 @@ use serenity::http::AttachmentType;
 use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static URBANMUG_COMMAND: Command = Command {
     key: "urbanmug",
     description: "Gets a nice mug",
     help_page: "<text>",
     category: Category::Fun,
-    show_on_help: true,
     func: mug_command,
 };
 

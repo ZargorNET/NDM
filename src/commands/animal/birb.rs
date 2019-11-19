@@ -3,18 +3,15 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
 
 pub static BIRB_COMMAND: Command = Command {
     key: "birb",
     description: "Gets a random birb",
     help_page: "",
     category: Category::Animals,
-    show_on_help: true,
     func: birb_command,
 };
-
-pub const BIRB_CACHE_KEY: &'static str = "birbcache";
 
 const BIRB_SLOGANS: &'static [&'static str] = &[
     "Weird plane. Should do way more noise... It must be coming from AREA 51",
@@ -28,7 +25,7 @@ fn birb_command(args: CommandArguments) -> CommandResult {
     let random_birb;
     {
         let safe = args.safe.read();
-        let birb_cache = match safe.get::<Vec<String>>(BIRB_CACHE_KEY) {
+        let birb_cache = match safe.get::<Vec<String>>() {
             Some(ks) => ks,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no birbs cached yet! Please try again later :)! :bird:");

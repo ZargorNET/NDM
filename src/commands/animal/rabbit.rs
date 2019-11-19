@@ -3,16 +3,13 @@ use serenity::utils::Colour;
 
 use crate::command_framework::{Command, CommandArguments, CommandResult};
 use crate::commands;
-use crate::util::enums::category::Category;
-
-pub const RABBIT_CACHE_KEY: &'static str = "rabbitcache";
+use crate::commands::category::Category;
 
 pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
     description: "Gets you an hoppyboi",
     help_page: "",
     category: Category::Animals,
-    show_on_help: true,
     func: rabbit_command,
 };
 
@@ -21,7 +18,7 @@ fn rabbit_command(args: CommandArguments) -> CommandResult {
 
     {
         let safe = args.safe.read();
-        let rabbits = match safe.get::<Vec<Rabbit>>(RABBIT_CACHE_KEY) {
+        let rabbits = match safe.get::<Vec<Rabbit>>() {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no rabbits fetched yet :c Try again later :rabbit2:");

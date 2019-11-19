@@ -14,7 +14,6 @@ pub fn fetch_memes(args: ScheduleArguments) {
             }
         };
 
-
         for meme in reddit_res.data.children.into_iter().map(|m| m.data) {
             let mut url = "https://reddit.com".to_owned();
             url.push_str(&meme.permalink);
@@ -41,5 +40,5 @@ pub fn fetch_memes(args: ScheduleArguments) {
     memes.shrink_to_fit();
     info!("MEME SCHEDULER: Fetched {} memes!", memes.len());
     let mut safe = args.safe.write();
-    safe.store(commands::fun::meme::MEME_CACHE_KEY, memes);
+    safe.store(memes);
 }

@@ -1,6 +1,6 @@
 use crate::command_framework::{Command, CommandManager};
+use crate::commands::category::Category;
 use crate::commands::image_gen::print_template_features;
-use crate::util::enums::category::Category;
 use crate::util::image::ImageStorage;
 
 pub fn register_images(command_manager: &mut CommandManager, images: &ImageStorage) {
@@ -10,7 +10,6 @@ pub fn register_images(command_manager: &mut CommandManager, images: &ImageStora
             description: Box::leak(format!("Generates a new {} image", &key).into_boxed_str()),
             help_page: Box::leak(format!("{}", print_template_features(images, &key)).into_boxed_str()),
             category: Category::GeneratedImage,
-            show_on_help: false,
             func: super::image_gen,
         });
     }

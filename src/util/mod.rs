@@ -1,3 +1,3 @@
 pub mod image;
 pub mod reddit;
-pub mod enums;
+pub mod safe;

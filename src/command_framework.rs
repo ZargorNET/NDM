@@ -6,9 +6,8 @@ use serenity::model::prelude::Message;
 use serenity::prelude::{Context, RwLock};
 
 use crate::{StaticSettings, util};
-use crate::safe::Safe;
-use crate::scheduler::Scheduler;
-use crate::util::enums::category::Category;
+use crate::commands::category::Category;
+use crate::util::safe::Safe;
 
 pub struct CommandManager {
     commands: Vec<Command>
@@ -27,21 +26,19 @@ pub struct CommandArguments<'a> {
     pub ctx: &'a Context,
     pub m: &'a Message,
     pub handler: Arc<RwLock<CommandManager>>,
-    pub scheduler: Arc<RwLock<Scheduler>>,
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
-    pub settings: Arc<RwLock<StaticSettings>>,
+    pub settings: Arc<StaticSettings>,
     pub command: &'a Command,
 }
 
 #[derive(Clone)]
 pub struct Command {
-    pub   key: &'static str,
-    pub   description: &'static str,
-    pub   help_page: &'static str,
-    pub   category: Category,
-    pub   show_on_help: bool,
-    pub   func: fn(args: CommandArguments) -> CommandResult,
+    pub key: &'static str,
+    pub description: &'static str,
+    pub help_page: &'static str,
+    pub category: Category,
+    pub func: fn(args: CommandArguments) -> CommandResult,
 }
 
 
@@ -84,16 +81,15 @@ impl CommandManager {
 }
 
 impl<'a> CommandArguments<'a> {
-    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, scheduler: Arc<RwLock<Scheduler>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<RwLock<StaticSettings>>, command: &'a Command) -> CommandArguments<'a> {
+    pub fn new(ctx: &'a Context, m: &'a Message, handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, settings: Arc<StaticSettings>, command: &'a Command) -> CommandArguments<'a> {
         CommandArguments {
             ctx,
             m,
             handler,
-            scheduler,
             safe,
             image,
             settings,
-            command
+            command,
         }
     }
 }

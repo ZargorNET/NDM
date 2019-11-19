@@ -42,5 +42,5 @@ pub fn fetch_aww(args: ScheduleArguments) {
     ret.shrink_to_fit();
     info!("AWW SCHEDULER: Fetched {} awws", ret.len());
     let mut safe = args.safe.write();
-    safe.store(commands::animal::aww::AWW_CACHE_KEY, ret);
+    safe.store(ret);
 }
