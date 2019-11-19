@@ -190,7 +190,7 @@ fn main() {
     let scheduler = Scheduler::new(Arc::clone(&command_handler), Arc::clone(&safe), Arc::clone(&client.cache_and_http));
     start_scheduler(&scheduler);
 
-    client.start_shards(2).expect("Could not start discord client");
+    client.start_autosharded().expect("Could not start discord client");
 }
 
 fn start_scheduler(scheduler: &Scheduler) {
