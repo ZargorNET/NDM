@@ -15,7 +15,7 @@ use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
-use crate::scheduler::Scheduler;
+use crate::scheduler::{ArcScheduler, Scheduler};
 use crate::util::safe::keys::other::SERENITY_CACHE_KEY;
 use crate::util::safe::Safe;
 
@@ -33,7 +33,7 @@ pub struct StaticSettings {
 
 struct Handler {
     ch: Arc<RwLock<CommandManager>>,
-    scheduler: Arc<RwLock<Scheduler>>,
+    scheduler: ArcScheduler,
     safe: Arc<RwLock<Safe>>,
     image: Arc<util::image::ImageStorage>,
     settings: Arc<RwLock<StaticSettings>>,
@@ -202,7 +202,6 @@ fn main() {
 
 fn start_scheduler(handler: &Handler) {
     let scheduler = Arc::clone(&handler.scheduler);
-    let mut scheduler = scheduler.write();
     scheduler.clear_all();
     scheduler.schedule_repeated(1 * 60 * 30, schedules::update_statistics); // EVERY 30 MINUTES
     scheduler.schedule_repeated(1200, schedules::fetch_memes); // EVERY 20 MINUTES

@@ -7,11 +7,12 @@ use crate::command_framework::CommandManager;
 use crate::util::safe::Safe;
 
 pub type ScheduleFunction = fn(ScheduleArguments);
+pub type ArcScheduler = Arc<Scheduler>;
 
 pub struct ScheduleArguments {
     pub command_manager: Arc<RwLock<CommandManager>>,
     pub safe: Arc<RwLock<Safe>>,
-    pub scheduler: Arc<RwLock<Scheduler>>,
+    pub scheduler: Arc<Scheduler>,
 }
 
 pub struct Scheduler {
@@ -28,18 +29,18 @@ struct Schedule {
 }
 
 impl Scheduler {
-    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, start_delay_millis: u64) -> Arc<RwLock<Scheduler>> {
-        let s: Arc<RwLock<Scheduler>> = Arc::new(RwLock::new(Scheduler {
+    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, start_delay_millis: u64) -> ArcScheduler {
+        let s = Arc::new(Scheduler {
             schedules: Arc::new(RwLock::new(Vec::new())),
             start_delay_millis
-        }));
+        });
 
-        s.read().start_schedule(cmd_handler, safe, Arc::clone(&s));
+        s.start_schedule(cmd_handler, safe, Arc::clone(&s));
         s
     }
 
     #[allow(dead_code)]
-    pub fn schedule_repeated(&mut self, interval_sec: u64, func: ScheduleFunction) {
+    pub fn schedule_repeated(&self, interval_sec: u64, func: ScheduleFunction) {
         let schedules = Arc::clone(&self.schedules);
         let mut schedules = schedules.write();
         schedules.push(Schedule {
@@ -51,7 +52,7 @@ impl Scheduler {
     }
 
     #[allow(dead_code)]
-    pub fn schedule_onetime(&mut self, after_sec: u64, func: ScheduleFunction) {
+    pub fn schedule_onetime(&self, after_sec: u64, func: ScheduleFunction) {
         let schedules = Arc::clone(&self.schedules);
         let mut schedules = schedules.write();
         schedules.push(Schedule {
@@ -62,14 +63,14 @@ impl Scheduler {
         });
     }
 
-    pub fn clear_all(&mut self) {
+    pub fn clear_all(&self) {
         let schedules = Arc::clone(&self.schedules);
         let mut schedules = schedules.write();
         schedules.clear();
         schedules.shrink_to_fit();
     }
 
-    fn start_schedule(&self, command_manager: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, scheduler: Arc<RwLock<Scheduler>>) {
+    fn start_schedule(&self, command_manager: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, scheduler: Arc<Scheduler>) {
         let schedules = Arc::clone(&self.schedules);
         let cmd_manager = Arc::clone(&command_manager);
         let start_delay_millis = self.start_delay_millis;
