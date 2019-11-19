@@ -1,0 +1,10 @@
+name="ban"
+
+[[features]]
+key = "user"
+kind = "user_image"
+x = 70
+y = 344
+w = 400
+h = 400
+grayscale = false
