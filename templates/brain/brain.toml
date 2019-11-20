@@ -1,0 +1,41 @@
+name = "brain"
+
+[[features]]
+key = "text1"
+kind = "split_text"
+x = 14
+y = 30
+w = 230
+h = 130
+font_size = 40
+font_color = [0,0,0,255]
+
+[[features]]
+key = "text2"
+kind = "split_text"
+x = 15
+y = 230
+w = 230
+h = 130
+font_size = 40
+font_color = [0,0,0,255]
+
+[[features]]
+key = "text3"
+kind = "split_text"
+x = 15
+y = 420
+w = 230
+h = 130
+font_size = 40
+font_color = [0,0,0,255]
+
+[[features]]
+key = "text4"
+kind = "split_text"
+x = 15
+y = 610
+w = 230
+h = 130
+font_size = 40
+font_color = [0,0,0,255]

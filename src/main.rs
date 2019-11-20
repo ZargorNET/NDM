@@ -12,7 +12,7 @@ use std::sync::Arc;
 use chrono::{DateTime, Utc};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use simplelog::{CombinedLogger, Config, LevelFilter, TerminalMode, TermLogger, WriteLogger};
+use simplelog::{CombinedLogger, Config, LevelFilter, SharedLogger, SimpleLogger, TerminalMode, TermLogger, WriteLogger};
 
 use crate::command_framework::{CommandArguments, CommandManager};
 use crate::scheduler::Scheduler;
@@ -133,11 +133,16 @@ impl EventHandler for Handler {
 }
 
 fn main() {
+    let mut multiple = vec![];
+
+    match TermLogger::new(LevelFilter::Info, Config::default(), TerminalMode::Mixed) {
+        Some(logger) => multiple.push(logger as Box<dyn SharedLogger>),
+        None => multiple.push(SimpleLogger::new(LevelFilter::Info, Config::default())),
+    }
+    multiple.push(WriteLogger::new(LevelFilter::Debug, Config::default(), File::create("latest.log").unwrap()));
+
     CombinedLogger::init(
-        vec![
-            TermLogger::new(LevelFilter::Info, Config::default(), TerminalMode::Mixed).unwrap(),
-            WriteLogger::new(LevelFilter::Debug, Config::default(), File::create("latest.log").unwrap()),
-        ]
+        multiple
     ).unwrap();
     log_panics::init();
 
@@ -190,7 +195,7 @@ fn main() {
     let scheduler = Scheduler::new(Arc::clone(&command_handler), Arc::clone(&safe), Arc::clone(&client.cache_and_http));
     start_scheduler(&scheduler);
 
-    client.start_autosharded().expect("Could not start discord client");
+    client.start_shards(2).expect("Could not start discord client");
 }
 
 fn start_scheduler(scheduler: &Scheduler) {
