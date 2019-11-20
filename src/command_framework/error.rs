@@ -3,24 +3,19 @@ use std::fmt::Formatter;
 
 use super::prelude::*;
 
+pub type CommandResult = Result<CommandAction, CommandError>;
+
+pub enum CommandAction {
+    MarkAsSucceeded,
+    MarkAsFailed,
+    PrintUsage,
+}
+
 #[derive(Debug, Clone)]
 pub struct CommandError {
     pub cmd: Command,
     pub err: String,
 }
-
-impl fmt::Display for CommandError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, r#"error in command "{}": {}"#, self.cmd.key, self.err)
-    }
-}
-
-impl error::Error for CommandError {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        None
-    }
-}
-
 
 #[allow(dead_code)]
 impl CommandError {
@@ -35,6 +30,19 @@ impl CommandError {
             cmd: cmd.clone(),
             err,
         }
+    }
+}
+
+impl fmt::Display for CommandError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, r#"error in command "{}": {}"#, self.cmd.key, self.err)
+    }
+}
+
+
+impl error::Error for CommandError {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        None
     }
 }
 

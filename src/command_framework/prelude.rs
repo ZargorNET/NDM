@@ -6,6 +6,7 @@ pub use serenity::model::channel::ReactionType;
 pub use serenity::prelude::RwLock;
 
 pub use crate::command_framework::Command;
+pub use crate::command_framework::CommandAction::{MarkAsFailed, MarkAsSucceeded, PrintUsage};
 pub use crate::command_framework::CommandArguments;
 pub use crate::command_framework::CommandError;
 pub use crate::command_framework::CommandManager;

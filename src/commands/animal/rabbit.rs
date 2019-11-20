@@ -1,9 +1,8 @@
 use rand::Rng;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::commands;
-use crate::commands::category::Category;
 
 pub static RABBIT_COMMAND: Command = Command {
     key: "rabbit",
@@ -22,7 +21,7 @@ fn rabbit_command(args: CommandArguments) -> CommandResult {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no rabbits fetched yet :c Try again later :rabbit2:");
-                return Ok(true);
+                return Ok(MarkAsFailed);
             }
         };
         rabbit = rabbits[rand::thread_rng().gen_range(0, rabbits.len())].clone();
@@ -41,7 +40,7 @@ fn rabbit_command(args: CommandArguments) -> CommandResult {
         })
     });
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
 
 #[derive(Clone)]

@@ -3,8 +3,7 @@ use std::error;
 use serenity::http::AttachmentType;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::commands::category::Category;
+use crate::command_framework::prelude::*;
 
 pub static URBANMUG_COMMAND: Command = Command {
     key: "urbanmug",
@@ -18,7 +17,7 @@ fn mug_command(args: CommandArguments) -> CommandResult {
     let split: Vec<&str> = args.m.content.split_whitespace().collect();
 
     if split.len() < 2 {
-        return Ok(false);
+        return Ok(PrintUsage);
     }
 
     let s = split[1..split.len()].join(" ");
@@ -40,7 +39,7 @@ fn mug_command(args: CommandArguments) -> CommandResult {
         mb
     });
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
 
 pub fn get_mug(term: &str) -> Result<Vec<u8>, Box<dyn error::Error>> {

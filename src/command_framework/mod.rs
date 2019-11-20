@@ -9,8 +9,6 @@ mod command_args;
 pub mod command_handler;
 pub mod prelude;
 
-pub type CommandResult = Result<bool, CommandError>;
-
 pub struct CommandManager {
     commands: Vec<Command>
 }

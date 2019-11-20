@@ -1,8 +1,7 @@
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::commands;
-use crate::commands::category::Category;
 
 pub static FOX_COMMAND: Command = Command {
     key: "fox",
@@ -29,7 +28,7 @@ fn fox_command(args: CommandArguments) -> CommandResult {
         })
     });
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,3 +1,4 @@
+use crate::command_framework::CommandAction;
 use crate::Handler;
 
 use super::prelude::*;
@@ -37,15 +38,21 @@ pub(crate) fn handle_command(handler: &Handler, ctx: Context, msg: Message) {
                                          Arc::clone(&handler.image),
                                          Arc::clone(&handler.settings), &cmd);
         match (cmd.func)(args) {
-            Ok(print_usage) => {
-                if print_usage {
-                    let _ = msg.react(&ctx, ReactionType::from("✅"));
-                } else {
-                    let _ = msg.react(&ctx, ReactionType::from("❌"));
-                    let _ = msg.channel_id.send_message(&ctx, |eb| {
-                        eb.content(format!("Invalid syntax! Try: ``{}{} {}``", &handler.settings.default_prefix, cmd.key, cmd.help_page));
-                        eb
-                    });
+            Ok(action) => {
+                match action {
+                    CommandAction::MarkAsSucceeded => {
+                        let _ = msg.react(&ctx, ReactionType::from("✅"));
+                    },
+                    CommandAction::MarkAsFailed => {
+                        let _ = msg.react(&ctx, ReactionType::from("❌"));
+                    },
+                    CommandAction::PrintUsage => {
+                        let _ = msg.react(&ctx, ReactionType::from("❌"));
+                        let _ = msg.channel_id.send_message(&ctx, |eb| {
+                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", &handler.settings.default_prefix, cmd.key, cmd.help_page));
+                            eb
+                        });
+                    },
                 }
             }
             Err(err) => {

@@ -1,7 +1,6 @@
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::commands::category::Category;
+use crate::command_framework::prelude::*;
 
 pub static ABOUT_COMMAND: Command = Command {
     key: "about",
@@ -89,5 +88,5 @@ fn about_command(args: CommandArguments) -> CommandResult {
         })
     });
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }

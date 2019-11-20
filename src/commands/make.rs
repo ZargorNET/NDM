@@ -1,5 +1,4 @@
-use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::commands::category::Category;
+use crate::command_framework::prelude::*;
 
 pub static MAKE_COMMAND: Command = Command {
     key: "make",
@@ -17,5 +16,5 @@ fn make_command(args: CommandArguments) -> CommandResult {
 
     super::help::print_cmds(&args, cmds, "Image Generation");
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
