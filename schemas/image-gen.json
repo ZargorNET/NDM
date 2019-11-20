@@ -1,0 +1,24 @@
+{
+    "$schema": "./image-gen.json",
+    "$id": "./image-gen.json",
+    "title": "image-gen",
+    "type": "object",
+    "definitions": {
+        "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_\\.-]+$"
+        },
+        "feature": {
+
+        }
+    },
+    "required": [
+        "name"
+    ],
+    "properties": {
+        "name": {
+            "description": "The unique name of the Image",
+            "$ref": "#/definitions/name"
+        }
+    }
+}
