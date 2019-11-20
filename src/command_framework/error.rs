@@ -8,6 +8,7 @@ pub type CommandResult = Result<CommandAction, CommandError>;
 pub enum CommandAction {
     MarkAsSucceeded,
     MarkAsFailed,
+    MarkAsWrongUsage,
     PrintUsage,
 }
 

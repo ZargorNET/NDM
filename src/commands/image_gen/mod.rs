@@ -59,7 +59,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
                                     eb
                                 })
                             });
-                            return Ok(MarkAsFailed);
+                            return Ok(MarkAsWrongUsage);
                         }
                     };
 

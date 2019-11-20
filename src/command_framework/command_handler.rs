@@ -42,17 +42,20 @@ pub(crate) fn handle_command(handler: &Handler, ctx: Context, msg: Message) {
                 match action {
                     CommandAction::MarkAsSucceeded => {
                         let _ = msg.react(&ctx, ReactionType::from("✅"));
-                    },
+                    }
                     CommandAction::MarkAsFailed => {
                         let _ = msg.react(&ctx, ReactionType::from("❌"));
-                    },
+                    }
+                    CommandAction::MarkAsWrongUsage => {
+                        let _ = msg.react(&ctx, ReactionType::from("❔"));
+                    }
                     CommandAction::PrintUsage => {
-                        let _ = msg.react(&ctx, ReactionType::from("❌"));
+                        let _ = msg.react(&ctx, ReactionType::from("❔"));
                         let _ = msg.channel_id.send_message(&ctx, |eb| {
                             eb.content(format!("Invalid syntax! Try: ``{}{} {}``", &handler.settings.default_prefix, cmd.key, cmd.help_page));
                             eb
                         });
-                    },
+                    }
                 }
             }
             Err(err) => {
