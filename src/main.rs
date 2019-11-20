@@ -137,7 +137,7 @@ fn main() {
 
     match TermLogger::new(LevelFilter::Info, Config::default(), TerminalMode::Mixed) {
         Some(logger) => multiple.push(logger as Box<dyn SharedLogger>),
-        None => multiple.push(SimpleLogger::new(LevelFilter::Warn, Config::default())),
+        None => multiple.push(SimpleLogger::new(LevelFilter::Info, Config::default())),
     }
     multiple.push(WriteLogger::new(LevelFilter::Debug, Config::default(), File::create("latest.log").unwrap()));
 
