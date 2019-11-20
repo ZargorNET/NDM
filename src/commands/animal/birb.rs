@@ -1,9 +1,8 @@
 use rand::Rng;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::commands;
-use crate::commands::category::Category;
 
 pub static BIRB_COMMAND: Command = Command {
     key: "birb",
@@ -29,7 +28,7 @@ fn birb_command(args: CommandArguments) -> CommandResult {
             Some(ks) => ks,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no birbs cached yet! Please try again later :)! :bird:");
-                return Ok(true);
+                return Ok(MarkAsFailed);
             }
         };
 
@@ -50,5 +49,5 @@ fn birb_command(args: CommandArguments) -> CommandResult {
             eb
         })
     });
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }

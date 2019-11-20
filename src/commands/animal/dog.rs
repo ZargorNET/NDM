@@ -1,9 +1,8 @@
 use rand::Rng;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::commands;
-use crate::commands::category::Category;
 
 pub static DOG_COMMAND: Command = Command {
     key: "dog",
@@ -48,7 +47,7 @@ fn dog_command(args: CommandArguments) -> CommandResult {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no dogs cached yet! Please try again later :dog2:");
-                return Ok(true);
+                return Ok(MarkAsFailed);
             }
         };
 
@@ -63,10 +62,10 @@ fn dog_command(args: CommandArguments) -> CommandResult {
                 Some(s) => s,
                 None => {
                     let _ = args.m.reply(args.ctx, format!("Dog breed not found! View all breeds using ``{}dogbreeds``", args.settings.default_prefix));
-                    return Ok(true);
+                    return Ok(MarkAsFailed);
                 }
             };
-        } else { return Ok(false); }
+        } else { return Ok(PrintUsage); }
 
         let index = rand::thread_rng().gen_range(0, dog_breed.images.len());
         dog_url = dog_breed.images.get(index).unwrap().clone();
@@ -85,7 +84,7 @@ fn dog_command(args: CommandArguments) -> CommandResult {
         cb
     });
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
 
 fn dog_breed_command(args: CommandArguments) -> CommandResult {
@@ -97,7 +96,7 @@ fn dog_breed_command(args: CommandArguments) -> CommandResult {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry, no dog breeds cached yet! Please try again later");
-                return Ok(true);
+                return Ok(MarkAsFailed);
             }
         };
 
@@ -118,5 +117,5 @@ fn dog_breed_command(args: CommandArguments) -> CommandResult {
             eb
         })
     });
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }

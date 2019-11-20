@@ -1,8 +1,7 @@
 use serenity::http::AttachmentType;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::commands::category::Category;
+use crate::command_framework::prelude::*;
 
 pub static URBAN_COMMAND: Command = Command {
     key: "urban",
@@ -29,7 +28,7 @@ struct UrbanResponse {
 fn urban_command(args: CommandArguments) -> CommandResult {
     let split: Vec<&str> = args.m.content.split_whitespace().collect();
     if split.len() < 2 {
-        return Ok(false);
+        return Ok(PrintUsage);
     }
     let term = split.into_iter().skip(1);
     let term: Vec<&str> = term.collect();
@@ -41,7 +40,7 @@ fn urban_command(args: CommandArguments) -> CommandResult {
 
     if uo.list.len() == 0 {
         let _ = args.m.reply(args.ctx, "Term not found. I'm sorry :c");
-        return Ok(true);
+        return Ok(MarkAsFailed);
     }
 
     let mut uo = uo.list.first_mut().unwrap();
@@ -77,5 +76,5 @@ fn urban_command(args: CommandArguments) -> CommandResult {
         let _ = args.m.reply(args.ctx, "Sorry! Something went wrong :c");
     }
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }

@@ -1,8 +1,7 @@
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::commands;
-use crate::commands::category::Category;
 
 pub static CAT_COMMAND: Command = Command {
     key: "cat",
@@ -35,5 +34,5 @@ fn cat_command(args: CommandArguments) -> CommandResult {
         eb
     }));
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }

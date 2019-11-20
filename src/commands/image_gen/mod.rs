@@ -3,7 +3,7 @@ use std::io::Read;
 use reqwest::Response;
 use serenity::http::AttachmentType;
 
-use crate::command_framework::{CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::util::image::{ImageStorage, Template};
 use crate::util::image::feature::FeatureType;
 
@@ -59,20 +59,20 @@ fn image_gen(args: CommandArguments) -> CommandResult {
                                     eb
                                 })
                             });
-                            return Ok(true);
+                            return Ok(MarkAsWrongUsage);
                         }
                     };
 
                     let mention = match super::util::parse_mentions(next).get(0) {
                         Some(s) => s.clone(),
-                        None => return Ok(false)
+                        None => return Ok(PrintUsage)
                     };
 
                     match args.m.mentions.iter().find(|m| m.id.0 == mention.parse::<u64>().unwrap()) {
                         Some(s) => s.clone(),
                         None => {
                             let _ = args.m.reply(args.ctx, "User not found");
-                            return Ok(true);
+                            return Ok(MarkAsFailed);
                         }
                     }
                 };
@@ -81,7 +81,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
                     Some(s) => s,
                     None => {
                         let _ = args.m.reply(args.ctx, "Sorry at least one of your specified users(or yourself) don't have a valid avatar");
-                        return Ok(true);
+                        return Ok(MarkAsFailed);
                     }
                 };
 
@@ -121,7 +121,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
         mb
     });
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
 
 fn print_template_features(images: &ImageStorage, template_key: &str) -> String {

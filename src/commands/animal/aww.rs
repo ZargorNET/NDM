@@ -1,9 +1,8 @@
 use rand::Rng;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::commands;
-use crate::commands::category::Category;
 
 pub static AWW_COMMAND: Command = Command {
     key: "aww",
@@ -22,7 +21,7 @@ fn aww_command(args: CommandArguments) -> CommandResult {
             Some(s) => s,
             None => {
                 let _ = args.m.reply(args.ctx, "Sorry! No awws fetched yet :c Please try again later :dog2:");
-                return Ok(true);
+                return Ok(MarkAsFailed);
             }
         };
         aww = awws[rand::thread_rng().gen_range(0, awws.len())].clone();
@@ -42,7 +41,7 @@ fn aww_command(args: CommandArguments) -> CommandResult {
             eb
         })
     });
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
 
 #[derive(Clone)]

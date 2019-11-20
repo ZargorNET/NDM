@@ -1,8 +1,7 @@
 use rand::{Rng, SeedableRng};
 use serenity::model::guild::Member;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::commands::category::Category;
+use crate::command_framework::prelude::*;
 
 pub static LOVE_COMMAND: Command = Command {
     key: "love",
@@ -23,7 +22,7 @@ fn love_command(args: CommandArguments) -> CommandResult {
 
     match args.m.mentions.len() {
         0 => {
-            return Ok(false);
+            return Ok(PrintUsage);
         }
         1 => {
             user1 = cache.member(args.m.guild_id.unwrap(), args.m.author.id).unwrap();
@@ -55,5 +54,5 @@ fn love_command(args: CommandArguments) -> CommandResult {
         }
         f.content(format!("{}", message))
     });
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }

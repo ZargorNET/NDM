@@ -1,7 +1,7 @@
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::commands::category::Category;
+use crate::command_framework::CommandAction::MarkAsSucceeded;
+use crate::command_framework::prelude::*;
 
 pub static HELP_COMMAND: Command = Command {
     key: "help",
@@ -19,7 +19,7 @@ fn help_command(args: CommandArguments) -> CommandResult {
 
     print_cmds(&args, cmds, "Help");
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
 
 pub(super) fn print_cmds(args: &CommandArguments, cmds: Vec<Command>, title: &str) {

@@ -14,7 +14,7 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, SharedLogger, SimpleLogger, TerminalMode, TermLogger, WriteLogger};
 
-use crate::command_framework::{CommandArguments, CommandManager};
+use crate::command_framework::CommandManager;
 use crate::scheduler::Scheduler;
 use crate::util::safe::Safe;
 
@@ -30,11 +30,11 @@ pub struct StaticSettings {
     pub start_time: DateTime<Utc>,
 }
 
-struct Handler {
-    ch: Arc<RwLock<CommandManager>>,
-    safe: Arc<RwLock<Safe>>,
-    image: Arc<util::image::ImageStorage>,
-    settings: Arc<StaticSettings>,
+pub(crate) struct Handler {
+    pub ch: Arc<RwLock<CommandManager>>,
+    pub safe: Arc<RwLock<Safe>>,
+    pub image: Arc<util::image::ImageStorage>,
+    pub settings: Arc<StaticSettings>,
 }
 
 impl Handler {
@@ -71,58 +71,7 @@ impl EventHandler for Handler {
 
 
     fn message(&self, ctx: Context, msg: Message) {
-        if msg.author.bot {
-            return;
-        }
-        if msg.is_private() {
-            return;
-        }
-
-        info!("[Message] {}: {}", msg.author.name, msg.content_safe(&ctx.cache));
-        //TODO: Server config prefix
-        if !msg.content.starts_with(&self.settings.default_prefix) {
-            return;
-        }
-
-        let mut msg = msg.clone();
-        msg.content = msg.content[1..].to_string();
-        let msg_split: Vec<&str> = msg.content.split_whitespace().collect();
-
-        let cmd;
-        {
-            let command_manager_arc = Arc::clone(&self.ch);
-            let command_manager = command_manager_arc.read();
-            match command_manager.get_command(msg_split[0]) {
-                Some(c) => cmd = c.clone(),
-                None => return
-            }
-        } // DROP READ LOCK
-        {
-            let args = CommandArguments::new(&ctx,
-                                             &msg,
-                                             Arc::clone(&self.ch),
-                                             Arc::clone(&self.safe),
-                                             Arc::clone(&self.image),
-                                             Arc::clone(&self.settings), &cmd);
-            match (cmd.func)(args) {
-                Ok(print_usage) => {
-                    if print_usage {
-                        let _ = msg.react(&ctx, ReactionType::from("✅"));
-                    } else {
-                        let _ = msg.react(&ctx, ReactionType::from("❌"));
-                        let _ = msg.channel_id.send_message(&ctx, |eb| {
-                            eb.content(format!("Invalid syntax! Try: ``{}{} {}``", self.settings.default_prefix, cmd.key, cmd.help_page));
-                            eb
-                        });
-                    }
-                }
-                Err(err) => {
-                    let _ = msg.react(&ctx, ReactionType::from("❌"));
-                    let _ = msg.reply(&ctx, "I'm sorry, I failed... There was an error executing the command. Please try again later!");
-                    error!("Could not execute command: {:#?}", err);
-                }
-            }
-        }
+        command_framework::command_handler::handle_command(self, ctx, msg);
     }
 
 

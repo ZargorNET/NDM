@@ -1,9 +1,8 @@
 use rand::Rng;
 use serenity::utils::Colour;
 
-use crate::command_framework::{Command, CommandArguments, CommandResult};
+use crate::command_framework::prelude::*;
 use crate::commands;
-use crate::commands::category::Category;
 
 pub static MEME_COMMAND: Command = Command {
     key: "meme",
@@ -28,7 +27,7 @@ fn meme_command(args: CommandArguments) -> CommandResult {
 
     if meme_cache.is_none() {
         let _ = args.m.channel_id.say(args.ctx, "No memes fetched yet! Try again later");
-        return Ok(true);
+        return Ok(MarkAsFailed);
     }
     let meme_cache = meme_cache.unwrap();
 
@@ -52,5 +51,5 @@ fn meme_command(args: CommandArguments) -> CommandResult {
         })
     });
 
-    Ok(true)
+    Ok(MarkAsSucceeded)
 }
