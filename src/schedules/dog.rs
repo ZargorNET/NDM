@@ -79,7 +79,6 @@ pub fn fetch_dogs(args: ScheduleArguments) {
                 continue;
             }
 
-            info!("DOG SCHEDULER: Fetched {} images for dog breed {}", breed_img.message.len(), &breed);
             ret.push(commands::animal::dog::DogBreed {
                 name: breed,
                 images: breed_img.message,
@@ -87,6 +86,13 @@ pub fn fetch_dogs(args: ScheduleArguments) {
         }
     }
     ret.shrink_to_fit();
+
+    let mut dogs = 0usize;
+    for d in ret.iter().map(|d| d.images.len()) {
+        dogs += d;
+    }
+
+    info!("DOG SCHEDULER: Fetched {} images for {} dog breeds", dogs, ret.len());
     let mut safe = args.safe.write();
     safe.store(DogCache {
         breeds: ret
