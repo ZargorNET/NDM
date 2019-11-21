@@ -50,7 +50,8 @@ fn urban_command(args: CommandArguments) -> CommandResult {
     uo.example = uo.example.replace("]", "");
 
 
-    let mug = unwrap_cmd_err!(&URBAN_COMMAND, super::urbanmug::get_mug(&term), "could not get urban mug");
+    let mug = super::urbanmug::get_mug(&term).unwrap_or_default();
+
     let mock_mug_filename = format!("{}.jpg", uo.defid);
 
     let result = args.m.channel_id.send_message(args.ctx, |mb| {
@@ -68,7 +69,9 @@ fn urban_command(args: CommandArguments) -> CommandResult {
 
             eb
         });
+
         mb.add_file(AttachmentType::Bytes((&mug, &mock_mug_filename)));
+
         mb
     });
 
