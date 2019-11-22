@@ -1,0 +1,10 @@
+name = "delete"
+
+[[features]]
+key = "user"
+kind = "user_image"
+default_user = true
+x = 120
+y = 135
+w = 195
+h = 195
