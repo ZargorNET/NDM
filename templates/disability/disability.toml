@@ -1,0 +1,10 @@
+name = "disability"
+
+[[features]]
+key = "user"
+kind = "user_image"
+default_user = true
+x = 450
+y = 325
+w = 175
+h = 175

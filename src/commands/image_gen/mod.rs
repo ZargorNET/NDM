@@ -117,7 +117,7 @@ fn image_gen(args: CommandArguments) -> CommandResult {
             super::util::add_footer(&mut eb, &args);
             eb
         });
-        mb.add_file(AttachmentType::Bytes((&img_buf, "make_image.png")));
+        mb.add_file(AttachmentType::Bytes { data: img_buf.into(), filename: "make_image.png".to_string() });
         mb
     });
 

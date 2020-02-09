@@ -1,0 +1,23 @@
+name = "door"
+
+[empty]
+w = 1000
+h = 479
+
+[[features]]
+key = "user"
+kind = "user_image"
+default_user = true
+x = 250
+y = 0
+w = 479
+h = 479
+
+[[features]]
+key = "overlay image"
+kind = "image"
+x = 0
+y = 0
+w = 1000
+h = 479
+overlay_image_path = "./templates/door/door_image.jpg"

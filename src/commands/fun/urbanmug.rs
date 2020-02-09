@@ -41,7 +41,7 @@ fn mug_command(args: CommandArguments) -> CommandResult {
 
             eb
         });
-        mb.add_file(AttachmentType::Bytes((&mug, "urban_mug.jpg")));
+        mb.add_file(AttachmentType::Bytes { data: mug.into(), filename: "urban_mug.jpg".to_string() });
         mb
     });
 

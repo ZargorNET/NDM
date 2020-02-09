@@ -1,0 +1,23 @@
+name = "fakenews"
+
+[empty]
+w = 1200
+h = 786
+
+[[features]]
+key = "user"
+kind = "user_image"
+default_user = true
+x = 390
+y = 0
+w = 400
+h = 400
+
+[[features]]
+key = "overlay image"
+kind = "image"
+x = 0
+y = 0
+w = 1200
+h = 786
+overlay_image_path = "./templates/fakenews/fakenews_image.png"

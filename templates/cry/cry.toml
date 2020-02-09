@@ -1,0 +1,11 @@
+name = "cry"
+
+[[features]]
+key = "reason"
+kind = "text"
+x = 382
+y = 80
+w = 180
+h = 150
+font_size = 44
+font_color = [0,0,0,255]

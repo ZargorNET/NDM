@@ -69,8 +69,7 @@ fn urban_command(args: CommandArguments) -> CommandResult {
 
             eb
         });
-
-        mb.add_file(AttachmentType::Bytes((&mug, &mock_mug_filename)));
+        mb.add_file(AttachmentType::Bytes { data: mug.into(), filename: mock_mug_filename });
 
         mb
     });

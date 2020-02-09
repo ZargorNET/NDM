@@ -20,6 +20,15 @@ impl Category {
             Self::Animals => true,
         }
     }
+
+    pub fn get_category_emoji(&self) -> &str {
+        match *self {
+            Self::GeneratedImage => "🖼",
+            Self::Fun => "😄",
+            Self::Misc => "❔",
+            Self::Animals => "😺",
+        }
+    }
 }
 
 impl Display for Category {

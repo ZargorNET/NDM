@@ -1,0 +1,10 @@
+name = "failure"
+
+[[features]]
+key = "user"
+kind = "user_image"
+default_user = true
+x = 143
+y = 525
+w = 215
+h = 215

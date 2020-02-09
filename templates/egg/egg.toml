@@ -1,0 +1,10 @@
+name = "egg"
+
+[[features]]
+key = "user"
+kind = "user_image"
+default_user = true
+x = 280
+y = 320
+w = 70
+h = 70
