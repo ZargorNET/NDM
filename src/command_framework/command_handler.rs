@@ -36,7 +36,9 @@ pub(crate) fn handle_command(handler: &Handler, ctx: Context, msg: Message) {
                                          Arc::clone(&handler.ch),
                                          Arc::clone(&handler.safe),
                                          Arc::clone(&handler.image),
-                                         Arc::clone(&handler.settings), &cmd);
+                                         Arc::clone(&handler.settings),
+                                         &cmd,
+                                         Arc::clone(&handler.eventwaiter));
         match (cmd.func)(args) {
             Ok(action) => {
                 match action {

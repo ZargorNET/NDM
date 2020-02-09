@@ -35,10 +35,11 @@ pub(crate) struct Handler {
     pub safe: Arc<RwLock<Safe>>,
     pub image: Arc<util::image::ImageStorage>,
     pub settings: Arc<StaticSettings>,
+    pub eventwaiter: Arc<util::eventwaiter::Eventwaiter>,
 }
 
 impl Handler {
-    fn new(ch: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>) -> Handler {
+    fn new(ch: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, image: Arc<util::image::ImageStorage>, eventwaiter: Arc<util::eventwaiter::Eventwaiter>) -> Handler {
         let settings = Arc::new(StaticSettings {
             default_prefix: "+".to_string(),
             start_time: Utc::now(),
@@ -49,6 +50,7 @@ impl Handler {
             safe,
             image,
             settings,
+            eventwaiter,
         }
     }
 }
@@ -69,9 +71,12 @@ impl EventHandler for Handler {
         self.update_activity(&ctx);
     }
 
-
     fn message(&self, ctx: Context, msg: Message) {
         command_framework::command_handler::handle_command(self, ctx, msg);
+    }
+
+    fn reaction_add(&self, context: Context, reaction: Reaction) {
+        self.eventwaiter.fire_reaction(context, reaction);
     }
 
 
@@ -134,8 +139,8 @@ fn main() {
     }
     let command_handler = Arc::new(RwLock::new(command_handler));
     let safe = Arc::new(RwLock::new(Safe::new()));
-
-    let handler = Handler::new(Arc::clone(&command_handler), Arc::clone(&safe), images);
+    let eventwaiter = Arc::new(util::eventwaiter::Eventwaiter::new());
+    let handler = Handler::new(Arc::clone(&command_handler), Arc::clone(&safe), images, eventwaiter);
 
     // START CLIENT
     info!("Starting client");
