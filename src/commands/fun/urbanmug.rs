@@ -22,7 +22,13 @@ fn mug_command(args: CommandArguments) -> CommandResult {
 
     let s = split[1..split.len()].join(" ");
 
-    let mug = unwrap_cmd_err!(&URBANMUG_COMMAND, get_mug(&s), "could not get mug from urban dictionary");
+    let mug = match get_mug(&s) {
+        Ok(s) => s,
+        Err(_) => {
+            let _ = args.m.reply(args.ctx, "Sorry, it looks like UrbanDictionary has some problems... Please try again later!");
+            return Ok(MarkAsFailed);
+        }
+    };
 
     let _ = args.m.channel_id.send_message(args.ctx, |mb| {
         mb.embed(|mut eb| {
