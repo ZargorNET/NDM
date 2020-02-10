@@ -1,6 +1,7 @@
 pub use aww::fetch_aww;
 pub use birb::fetch_birbs;
 pub use dog::fetch_dogs;
+pub use event_waiter_cleaner::clean_waiter;
 pub use meme::fetch_memes;
 pub use rabbit::fetch_rabbits;
 pub use statistics::update_statistics;
@@ -13,3 +14,4 @@ mod rabbit;
 mod aww;
 mod statistics;
 mod topgg_update;
+mod event_waiter_cleaner;

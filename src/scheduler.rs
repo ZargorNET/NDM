@@ -5,6 +5,7 @@ use serenity::CacheAndHttp;
 use serenity::prelude::RwLock;
 
 use crate::command_framework::CommandManager;
+use crate::util::eventwaiter::Eventwaiter;
 use crate::util::safe::Safe;
 
 pub type ScheduleFunction = fn(ScheduleArguments);
@@ -15,6 +16,7 @@ pub struct ScheduleArguments {
     pub safe: Arc<RwLock<Safe>>,
     pub scheduler: Arc<Scheduler>,
     pub serenity: Arc<CacheAndHttp>,
+    pub event_waiter: Arc<Eventwaiter>,
 }
 
 pub struct Scheduler {
@@ -30,12 +32,12 @@ struct Schedule {
 }
 
 impl Scheduler {
-    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, serenity: Arc<CacheAndHttp>) -> ArcScheduler {
+    pub fn new(cmd_handler: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, serenity: Arc<CacheAndHttp>, event_waiter: Arc<Eventwaiter>) -> ArcScheduler {
         let s = Arc::new(Scheduler {
             schedules: Arc::new(RwLock::new(Vec::new())),
         });
 
-        s.start_schedule(cmd_handler, safe, Arc::clone(&s), Arc::clone(&serenity));
+        s.start_schedule(cmd_handler, safe, Arc::clone(&s), Arc::clone(&serenity), Arc::clone(&event_waiter));
         s
     }
 
@@ -70,7 +72,7 @@ impl Scheduler {
         schedules.shrink_to_fit();
     }
 
-    fn start_schedule(&self, command_manager: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, scheduler: Arc<Scheduler>, serenity: Arc<CacheAndHttp>) {
+    fn start_schedule(&self, command_manager: Arc<RwLock<CommandManager>>, safe: Arc<RwLock<Safe>>, scheduler: Arc<Scheduler>, serenity: Arc<CacheAndHttp>, event_waiter: Arc<Eventwaiter>) {
         let schedules = Arc::clone(&self.schedules);
         let cmd_manager = Arc::clone(&command_manager);
 
@@ -95,6 +97,7 @@ impl Scheduler {
                         let tm_safe = Arc::clone(&safe);
                         let tm_scheduler = Arc::clone(&scheduler);
                         let tm_serenity = Arc::clone(&serenity);
+                        let tm_event_waiter = Arc::clone(&event_waiter);
 
                         let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                             (schedule.function)(ScheduleArguments {
@@ -102,11 +105,12 @@ impl Scheduler {
                                 safe: tm_safe,
                                 scheduler: tm_scheduler,
                                 serenity: tm_serenity,
+                                event_waiter: tm_event_waiter,
                             });
                         })
                         );
                         match res {
-                            Ok(_) => {},
+                            Ok(_) => {}
                             Err(_e) => error!("SCHEDULER: caught unwind from scheduler thread")
                         }
                     }
