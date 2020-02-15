@@ -24,6 +24,8 @@ rusttype = "0.8"
 toml = "0.5"
 regex = "1"
 lazy_static = "1.4.0"
+mongodb = "0.9.1"
+bson = "0.14.0"
 
 [dependencies.serenity]
 version = "0.8.0"
