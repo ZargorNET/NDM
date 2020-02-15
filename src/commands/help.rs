@@ -17,8 +17,7 @@ fn help_command(args: CommandArguments) -> CommandResult {
     let handler = args.handler.read();
     let mut cmds = handler.get_all_commands().clone();
     cmds.sort_by(|a, b| a.category.to_string().cmp(&b.category.to_string()));
-    cmds.retain(|c| c.category.show_on_help());
-    print_cmds(&args, cmds, "Help");
+    print_cmds(&args, cmds, "Help ");
     Ok(MarkAsSucceeded)
 }
 
@@ -31,7 +30,7 @@ pub(super) fn print_cmds(args: &CommandArguments, cmds: Vec<Command>, title: &st
                 if Category::Animals.get_category_emoji() != cmd.category.get_category_emoji() {
                     continue;
                 }
-                eb.title("Help ".to_string() + &cmd.category.to_string());
+                eb.title(title.to_string() + &cmd.category.to_string());
                 if cmd.help_page == "" {
                     s.push_str(&format!("``{}{}`` => {}\n", args.settings.default_prefix, cmd.key, cmd.description));
                 } else {
@@ -56,16 +55,19 @@ pub(super) fn print_cmds(args: &CommandArguments, cmds: Vec<Command>, title: &st
         }
     }
     {
-        args.event_waiter.register_event(ReactionEvent {
+        args.event_waiter.register_event(ReactionEvent::new(ResponseAccess::Everyone, 100, msg, update_help, args));
+
+        /*args.event_waiter.register_event(ReactionEvent {
             access: ResponseAccess::Everyone,
-            timeout: 0,
+            timeout: 300,
             eventwaiter: Arc::clone(&args.event_waiter),
             author: args.m.author.clone(),
             message: message.unwrap(),
+            author_message: args.m.clone(),
             handler: Arc::clone(&args.handler),
             settings: Arc::clone(&args.settings),
             callback: update_help,
-        })
+        })*/
     }
 }
 
