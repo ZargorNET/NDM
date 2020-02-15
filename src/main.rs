@@ -130,6 +130,7 @@ fn main() {
         command_handler.register_command(commands::animal::aww::AWW_COMMAND.clone());
         command_handler.register_command(commands::fun::love::LOVE_COMMAND.clone());
         command_handler.register_command(commands::fun::say::SAY_COMMAND.clone());
+        command_handler.register_command(commands::fun::penis::PENIS_COMMAND.clone());
 
         commands::image_gen::command_gen::register_images(&mut command_handler, images.as_ref());
 

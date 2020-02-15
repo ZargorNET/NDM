@@ -12,14 +12,14 @@ pub enum Category {
 }
 
 impl Category {
-    pub fn show_on_help(&self) -> bool {
+    /*pub fn show_on_help(&self) -> bool {
         match *self {
             Self::GeneratedImage => false,
             Self::Fun => true,
             Self::Misc => true,
             Self::Animals => true,
         }
-    }
+    }*/
 
     pub fn get_category_emoji(&self) -> &str {
         match *self {

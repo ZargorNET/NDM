@@ -1,5 +1,5 @@
 use crate::command_framework::{Command, CommandArguments, CommandResult};
-use crate::command_framework::CommandAction::{MarkAsFailed, MarkAsSucceeded, PrintUsage};
+use crate::command_framework::CommandAction::{MarkAsSucceeded, PrintUsage};
 use crate::commands::category::Category;
 
 pub static SAY_COMMAND: Command = Command {
