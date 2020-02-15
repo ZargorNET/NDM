@@ -10,6 +10,9 @@ use std::path::Path;
 use std::sync::Arc;
 
 use chrono::{DateTime, Utc};
+use mongodb::Database;
+use mongodb::options::{ClientOptions, StreamAddress};
+use mongodb::options::auth::{AuthMechanism, Credential};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use simplelog::{CombinedLogger, Config, LevelFilter, SharedLogger, SimpleLogger, TerminalMode, TermLogger, WriteLogger};
@@ -25,6 +28,20 @@ mod command_framework;
 mod commands;
 mod schedules;
 
+lazy_static! {
+    static ref DB_CLIENT: mongodb::Client = mongodb::Client::with_options(mongodb::options::ClientOptions::builder()
+        .credential(Credential{
+            username: Some(std::env::var("MONGO_USER").expect("MONGO_USER is missing from environment!")),
+            source: Some(std::env::var("MONGO_AUTH").expect("MONGO_AUTH is missing from environment!")),
+            password: Some(std::env::var("MONGO_PASS").expect("MONGO_PASS is missing from environment!")),
+            mechanism: Some(AuthMechanism::ScramSha256),
+            mechanism_properties: None
+        })
+        .hosts(vec![StreamAddress {
+            hostname: std::env::var("MONGO_HOST").expect("MONGO_HOST is missing from environment!"),
+            port: Some(std::env::var("MONGO_PORT").expect("MONGO_PORT is missing from environment!").parse().unwrap()),
+        }]).build()).unwrap();
+}
 pub struct StaticSettings {
     pub default_prefix: String,
     pub start_time: DateTime<Utc>,
